@@ -1,62 +1,71 @@
 import { supabase } from './supabase'
-import * as bcrypt from 'bcryptjs'
-import * as jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-prod'
-
-export async function hashPassword(password: string) {
-  return bcrypt.hash(password, 10)
-}
-
-export async function verifyPassword(password: string, hash: string) {
-  return bcrypt.compare(password, hash)
-}
-
-export function generateToken(userId: string, email: string) {
-  return jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' })
-}
-
-export function verifyToken(token: string) {
+export async function signUpUser(
+  email: string,
+  fullName: string,
+  password: string,
+  accountType: string = 'buyer'
+) {
   try {
-    return jwt.verify(token, JWT_SECRET)
-  } catch {
-    return null
+    // Create user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+    })
+
+    if (authError) throw authError
+
+    // Create user profile
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: authData.user?.id,
+          email,
+          full_name: fullName,
+          account_type: accountType,
+          email_verified: false,
+          password_hash: '', // Not used with Supabase Auth
+        },
+      ])
+      .select()
+      .single()
+
+    if (userError) throw userError
+
+    return { user: userData, auth: authData }
+  } catch (error) {
+    throw error
   }
 }
 
-export async function createUser(
-  email: string,
-  fullName: string,
-  passwordHash: string,
-  accountType: string = 'buyer'
-) {
-  const { data, error } = await supabase
-    .from('users')
-    .insert([
-      {
-        email,
-        full_name: fullName,
-        password_hash: passwordHash,
-        account_type: accountType,
-        email_verified: false,
-      },
-    ])
-    .select()
-    .single()
+export async function signInUser(email: string, password: string) {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-  if (error) throw error
-  return data
+    if (error) throw error
+
+    // Get user profile
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', data.user?.id)
+      .single()
+
+    if (userError) throw userError
+
+    return { user: userData, session: data.session }
+  } catch (error) {
+    throw error
+  }
 }
 
-export async function getUserByEmail(email: string) {
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single()
-
-  if (error && error.code !== 'PGRST116') throw error
-  return data
+export async function signOutUser() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
 }
 
 export async function verifyUserEmail(userId: string) {

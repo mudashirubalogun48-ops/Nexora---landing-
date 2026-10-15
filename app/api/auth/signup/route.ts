@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { hashPassword, createUser, getUserByEmail, generateToken } from '@/lib/auth'
+import { signUpUser } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,49 +20,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if user exists
-    const existingUser = await getUserByEmail(email)
-    if (existingUser) {
-      return NextResponse.json(
-        { error: 'User already exists' },
-        { status: 409 }
-      )
-    }
+    // Sign up
+    const result = await signUpUser(email, fullName, password, accountType)
 
-    // Hash password and create user
-    const passwordHash = await hashPassword(password)
-    const user = await createUser(email, fullName, passwordHash, accountType)
-
-    // Generate token
-    const token = generateToken(user.id, user.email)
-
-    // Set cookie
-    const response = NextResponse.json(
+    return NextResponse.json(
       {
         success: true,
         user: {
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          account_type: user.account_type,
+          id: result.user.id,
+          email: result.user.email,
+          full_name: result.user.full_name,
+          account_type: result.user.account_type,
         },
-        token,
+        session: result.auth.session,
       },
       { status: 201 }
     )
-
-    response.cookies.set('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    })
-
-    return response
-  } catch (error) {
+  } catch (error: any) {
     console.error('Signup error:', error)
     return NextResponse.json(
-      { error: 'Failed to create account' },
+      { error: error.message || 'Failed to create account' },
       { status: 500 }
     )
   }
