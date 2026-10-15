@@ -25,7 +25,7 @@ export default function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b transition-colors ${
         scrolled || open
-          ? "border-nexora-indigo/10 bg-white/90 backdrop-blur"
+          ? "border-nexora-indigo/10 bg-background/90 backdrop-blur"
           : "border-transparent bg-transparent"
       }`}
     >
@@ -34,7 +34,7 @@ export default function Navbar() {
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-nexora-teal text-sm font-bold text-white">
             N
           </span>
-          <span className="text-lg font-bold tracking-tight text-nexora-indigo">NEXORA</span>
+          <span className="font-display text-lg font-bold tracking-tight text-nexora-indigo">NEXORA</span>
         </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
@@ -59,7 +59,7 @@ export default function Navbar() {
           </a>
           <a
             href="#get-started"
-            className="rounded-lg bg-nexora-teal px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-nexora-teal/90"
+            className="rounded-lg bg-nexora-teal px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-nexora-teal-dark"
           >
             Get started
           </a>
@@ -84,7 +84,7 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-nexora-indigo/10 bg-white px-4 pb-6 pt-2 md:hidden">
+        <div id="mobile-menu" className="border-t border-nexora-indigo/10 bg-background px-4 pb-6 pt-2 md:hidden">
           <ul className="flex flex-col">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
