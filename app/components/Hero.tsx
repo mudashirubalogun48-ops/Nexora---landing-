@@ -39,13 +39,13 @@ export default function Hero() {
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <a
               href="#pricing"
-              className="w-full rounded-lg bg-nexora-teal px-6 py-3 text-center font-semibold text-white shadow-lg shadow-nexora-teal/25 transition hover:bg-nexora-teal/90 sm:w-auto"
+              className="w-full rounded-lg bg-nexora-teal px-6 py-3 text-center font-semibold text-white shadow-lg shadow-nexora-teal/25 transition hover:bg-nexora-teal-dark sm:w-auto"
             >
               Start free trial
             </a>
             <a
               href="#how-it-works"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-lg border border-nexora-indigo/15 bg-white px-6 py-3 font-semibold text-nexora-indigo transition hover:border-nexora-indigo/30 sm:w-auto"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-lg border border-nexora-indigo/15 bg-background px-6 py-3 font-semibold text-nexora-indigo transition hover:border-nexora-indigo/30 sm:w-auto"
             >
               See how it works
               <span aria-hidden className="transition group-hover:translate-x-0.5">→</span>
@@ -64,7 +64,7 @@ export default function Hero() {
 
         {/* Product visual (placeholder — swap for a real screenshot later) */}
         <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
-          <div className="rounded-2xl border border-nexora-indigo/10 bg-white p-4 shadow-2xl shadow-nexora-indigo/10 sm:p-6">
+          <div className="rounded-2xl border border-nexora-indigo/10 bg-background p-4 shadow-2xl shadow-nexora-indigo/10 sm:p-6">
             <div className="flex items-center gap-1.5">
               <span className="h-3 w-3 rounded-full bg-nexora-indigo/15" />
               <span className="h-3 w-3 rounded-full bg-nexora-indigo/15" />
@@ -96,7 +96,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="absolute -bottom-6 -left-4 hidden rounded-xl border border-nexora-indigo/10 bg-white px-4 py-3 shadow-xl sm:block">
+          <div className="absolute -bottom-6 -left-4 hidden rounded-xl border border-nexora-indigo/10 bg-background px-4 py-3 shadow-xl sm:block">
             <p className="text-xs text-nexora-indigo/60">Tasks automated</p>
             <p className="text-xl font-bold text-nexora-teal">1,284</p>
           </div>
