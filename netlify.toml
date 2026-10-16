@@ -1,0 +1,15 @@
+# NEXORA is served as plain static pages (index.html, auth.html, assets/).
+# The build step only copies the public files into _site so the repo's
+# source code (the older Next.js app, lib/, configs) is never published.
+[build]
+  command = "rm -rf _site && mkdir -p _site && cp -r assets _site/ && cp *.html _site/"
+  publish = "_site"
+
+[build.environment]
+  # Stop Netlify from auto-detecting the Next.js app in this repo.
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
