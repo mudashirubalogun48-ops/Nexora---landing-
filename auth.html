@@ -518,7 +518,7 @@
       goAfterAuth(r);
       return;
     }
-    msg('Account created! Check your email to confirm, then sign in.', 'ok');
+    msg('Account created! We sent a confirmation email. If you cannot see it within a minute, check your Spam or Promotions folder and tap "Not spam".', 'ok');
   }
 
   /* ── Sign in ── */
@@ -563,7 +563,7 @@
       redirectTo: location.origin + '/auth.html'
     });
     if (res.error) msg(res.error.message);
-    else msg('Password reset email sent. Check your inbox.', 'ok');
+    else msg('Password reset email sent. If you cannot see it within a minute, check your Spam or Promotions folder.', 'ok');
   }
 </script>
 <script>
