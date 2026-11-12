@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — My Orders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --orange-border: #fde68a;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 80px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      color: var(--charcoal); flex-shrink: 0;
+    }
+    .topbar-title { font-size: .95rem; font-weight: 700; color: var(--charcoal); flex: 1; }
+    .topbar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 12px; display: flex; gap: 4px; overflow-x: auto;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 12px 14px; font-size: .82rem; font-weight: 600;
+      color: var(--muted); white-space: nowrap; border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    /* CONTENT */
+    .content { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* ORDER CARD */
+    .order-card {
+      background: var(--white); border-radius: 14px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .order-top {
+      padding: 14px 14px 10px; display: flex; gap: 12px; align-items: flex-start;
+    }
+    .gig-thumb {
+      width: 64px; height: 48px; border-radius: 8px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; overflow: hidden;
+    }
+    .gig-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .order-meta { flex: 1; min-width: 0; }
+    .order-title { font-size: .88rem; font-weight: 700; color: var(--charcoal); line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-seller { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+    .order-date { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+
+    /* STATUS BADGE */
+    .status-badge {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: .72rem; font-weight: 700; flex-shrink: 0;
+    }
+    .status-active { background: var(--cyan-light); color: var(--cyan-dark); }
+    .status-pending { background: var(--orange-bg); color: var(--orange); }
+    .status-delivered { background: var(--purple-bg); color: var(--purple); }
+    .status-completed { background: var(--green-bg); color: var(--green); }
+    .status-cancelled { background: var(--red-bg); color: var(--red); }
+    .status-payment_failed { background: var(--red-bg); color: var(--red); }
+    .status-disputed { background: var(--orange-bg); color: #b45309; }
+    .report-link { display: block; width: 100%; text-align: center; padding: 9px 14px 11px; font-size: .76rem; font-weight: 600; color: var(--muted); border-top: 1px dashed var(--border); }
+    .dispute-box { width: 100%; min-height: 110px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border); font-family: inherit; font-size: .88rem; resize: vertical; margin: -6px 0 6px; color: var(--charcoal); }
+    .dispute-box:focus { outline: none; border-color: var(--cyan); }
+    .dispute-err { font-size: .76rem; color: var(--red); margin-bottom: 10px; display: none; }
+
+    /* ORDER FOOTER */
+    .order-footer {
+      padding: 10px 14px 12px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .order-price { font-size: .9rem; font-weight: 800; color: var(--charcoal); }
+    .order-tier { font-size: .72rem; color: var(--muted); margin-top: 1px; }
+    .order-actions { display: flex; gap: 8px; }
+
+    /* BUTTONS */
+    .btn-sm {
+      padding: 7px 14px; border-radius: 8px;
+      font-size: .78rem; font-weight: 700;
+    }
+    .btn-primary { background: var(--cyan); color: white; }
+    .btn-ghost { border: 1.5px solid var(--border); color: var(--muted); background: none; }
+    .btn-green { background: var(--green); color: white; }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 1.5px solid var(--red-border); }
+
+    /* DELIVERY BANNER */
+    .delivery-banner {
+      margin: 0 14px 10px;
+      padding: 10px 12px; border-radius: 10px;
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .delivery-banner .icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+    .delivery-banner p { font-size: .78rem; line-height: 1.5; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      min-height: 55vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; padding: 32px 24px; text-align: center;
+    }
+    .empty-icon { font-size: 3.5rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: var(--charcoal); }
+    .empty-state p { font-size: .85rem; color: var(--muted); max-width: 260px; line-height: 1.5; }
+    .btn-cta {
+      padding: 12px 28px; border-radius: 12px;
+      background: var(--cyan); color: white;
+      font-size: .92rem; font-weight: 700;
+    }
+
+    /* LOADING */
+    .loading { padding: 48px 16px; text-align: center; color: var(--muted); font-size: .88rem; }
+    .spin {
+      width: 28px; height: 28px; border: 3px solid var(--border);
+      border-top-color: var(--cyan); border-radius: 50%;
+      animation: spin .7s linear infinite; margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 300; display: flex; align-items: flex-end;
+    }
+    .modal {
+      background: var(--white); border-radius: 20px 20px 0 0;
+      padding: 20px 20px 36px; width: 100%;
+    }
+    .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .modal p { font-size: .85rem; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+    .modal-btn {
+      padding: 13px; border-radius: 10px; font-size: .92rem; font-weight: 700;
+      text-align: center; width: 100%;
+    }
+
+    /* NAV BAR */
+    .nav-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); border-top: 1px solid var(--border);
+      display: flex; z-index: 200;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 8px 4px 10px; gap: 3px;
+      font-size: .65rem; font-weight: 600; color: var(--muted);
+      text-decoration: none;
+    }
+    .nav-item.active { color: var(--cyan); }
+    .nav-item svg { width: 22px; height: 22px; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <span class="topbar-logo">NEXORA</span>
+  <div style="flex:1;"></div>
+  <div class="topbar-title" style="flex:0;font-size:.82rem;color:var(--muted);">My Orders</div>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-tabs">
+  <button class="tab-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="tab-btn" onclick="setFilter('active',this)">In Progress</button>
+  <button class="tab-btn" onclick="setFilter('delivered',this)">Delivered</button>
+  <button class="tab-btn" onclick="setFilter('completed',this)">Completed</button>
+  <button class="tab-btn" onclick="setFilter('cancelled',this)">Cancelled</button>
+</div>
+
+<div id="mainContent">
+  <div class="loading"><div class="spin"></div>Loading orders…</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav-bar">
+  <a href="browse.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Browse
+  </a>
+  <a href="orders.html" class="nav-item active">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+    Orders
+  </a>
+  <a href="messages.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Messages
+  </a>
+  <a href="buyer-dashboard.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Profile
+  </a>
+</nav>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="modalOverlay" style="display:none;" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modalTitle">Confirm</h3>
+    <p id="modalDesc"></p>
+    <textarea id="disputeText" class="dispute-box" maxlength="2000" style="display:none" placeholder="What went wrong? For example: the seller stopped replying, or the delivery doesn't match what was agreed."></textarea>
+    <div class="dispute-err" id="disputeErr"></div>
+    <div class="modal-btns">
+      <button class="modal-btn" id="modalConfirmBtn" style="background:var(--green);color:white;" onclick="modalConfirm()">Confirm</button>
+      <button class="modal-btn" style="border:1.5px solid var(--border);color:var(--muted);" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  var supa, user;
+  var allOrders = [];
+  var activeFilter = 'all';
+  var pendingAction = null;
+
+  // ── INIT ──────────────────────────────────────────────────────────────
+  (async function init() {
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.onload = async function() {
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      var { data: { session } } = await supa.auth.getSession();
+      if (!session) { window.location.href = 'auth.html?next=orders.html'; return; }
+      user = session.user;
+
+      await loadOrders();
+    };
+    document.head.appendChild(script);
+  })();
+
+  // ── LOAD ORDERS ───────────────────────────────────────────────────────
+  async function loadOrders() {
+    var { data, error } = await supa
+      .from('orders')
+      .select('*')
+      .eq('buyer_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('mainContent').innerHTML =
+        '<div class="empty-state"><div class="empty-icon">😕</div><h3>Could not load orders</h3><p>' + escHtml(error.message) + '</p></div>';
+      return;
+    }
+
+    allOrders = data || [];
+    renderOrders();
+  }
+
+  // ── FILTER ────────────────────────────────────────────────────────────
+  function setFilter(filter, btn) {
+    activeFilter = filter;
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderOrders();
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────────────
+  function renderOrders() {
+    var filtered = allOrders;
+    if (activeFilter !== 'all') {
+      filtered = allOrders.filter(function(o) {
+        if (activeFilter === 'active') return o.status === 'active' || o.status === 'in_progress' || o.status === 'disputed';
+        return o.status === activeFilter;
+      });
+    }
+
+    var mc = document.getElementById('mainContent');
+
+    if (filtered.length === 0) {
+      var msg = activeFilter === 'all'
+        ? "You haven't placed any orders yet."
+        : "No " + activeFilter + " orders.";
+      mc.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="empty-icon">📋</div>' +
+          '<h3>' + (activeFilter === 'all' ? 'No orders yet' : 'Nothing here') + '</h3>' +
+          '<p>' + msg + '</p>' +
+          (activeFilter === 'all' ? '<button class="btn-cta" onclick="window.location.href=\'browse.html\'">Browse Gigs</button>' : '') +
+        '</div>';
+      return;
+    }
+
+    var html = '<div class="content">';
+    filtered.forEach(function(order) {
+      html += renderOrderCard(order);
+    });
+    html += '</div>';
+    mc.innerHTML = html;
+  }
+
+  function renderOrderCard(o) {
+    var statusLabel = {
+      pending_payment: 'Awaiting Payment',
+      active: 'In Progress',
+      in_progress: 'In Progress',
+      delivered: 'Delivered',
+      completed: 'Completed',
+      cancelled: 'Cancelled',
+      payment_failed: 'Payment Failed',
+      disputed: 'Under Review',
+    }[o.status] || o.status;
+
+    var statusClass = {
+      pending_payment: 'status-pending',
+      active: 'status-active',
+      in_progress: 'status-active',
+      delivered: 'status-delivered',
+      completed: 'status-completed',
+      cancelled: 'status-cancelled',
+      payment_failed: 'status-payment_failed',
+      disputed: 'status-disputed',
+    }[o.status] || 'status-pending';
+
+    var tierLabel = (o.tier || 'basic');
+    tierLabel = tierLabel.charAt(0).toUpperCase() + tierLabel.slice(1);
+
+    var dateStr = '';
+    try { dateStr = new Date(o.created_at).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' }); } catch(e){}
+
+    // Delivery banner for "delivered" status
+    var banner = '';
+    if (o.status === 'delivered') {
+      banner = '<div class="delivery-banner" style="background:var(--purple-bg);border:1px solid #ddd6fe;">' +
+        '<span class="icon">📦</span>' +
+        '<p style="color:var(--purple);font-weight:600;">Seller has marked this as delivered. Please review and approve or request a revision.</p>' +
+      '</div>';
+    }
+    if (o.delivery_note && (o.status === 'delivered' || o.status === 'completed')) {
+      banner += '<div style="margin:0 14px 10px;padding:10px 12px;border-radius:10px;background:var(--off-white);border:1px solid var(--border);font-size:.8rem;line-height:1.55;color:var(--slate);white-space:pre-wrap;word-break:break-word;">' +
+        '<span style="display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;white-space:normal;">Delivery from seller</span>' +
+        linkify(o.delivery_note) +
+      '</div>';
+    }
+
+    if (o.status === 'disputed') {
+      banner += '<div class="delivery-banner" style="background:var(--orange-bg);border:1px solid #fde68a;">' +
+        '<span class="icon">🛡️</span>' +
+        '<p style="color:#92400e;font-weight:600;">You reported a problem. NEXORA is reviewing this order, and your payment stays protected until it is resolved.</p>' +
+      '</div>';
+    }
+    if (o.admin_note && (o.status === 'completed' || o.status === 'cancelled' || o.status === 'in_progress')) {
+      banner += '<div style="margin:0 14px 10px;padding:10px 12px;border-radius:10px;background:var(--off-white);border:1px solid var(--border);font-size:.8rem;line-height:1.55;color:var(--slate);white-space:pre-wrap;word-break:break-word;">' +
+        '<span style="display:block;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:4px;white-space:normal;">Note from NEXORA</span>' +
+        escHtml(o.admin_note) +
+      '</div>';
+    }
+
+    // Action buttons
+    var actions = '';
+    if (o.status === 'delivered') {
+      actions =
+        '<button class="btn-sm btn-green" onclick="approveDelivery(\'' + o.id + '\')">✅ Approve</button>' +
+        '<button class="btn-sm btn-red" onclick="requestRevision(\'' + o.id + '\')">🔄 Revision</button>';
+    } else if (o.status === 'active' || o.status === 'in_progress') {
+      actions = '<button class="btn-sm btn-ghost" onclick="messageOrder(\'' + o.id + '\',\'' + escHtml(o.seller_id) + '\')">💬 Message</button>';
+    } else if (o.status === 'completed') {
+      actions = '<button class="btn-sm btn-ghost" onclick="window.location.href=\'browse.html\'">Order Again</button>';
+    }
+
+    return '<div class="order-card">' +
+      '<div class="order-top">' +
+        '<div class="gig-thumb" style="background:#f0f9ff;">📦</div>' +
+        '<div class="order-meta">' +
+          '<div class="order-title">' + escHtml(o.gig_title || 'Gig Order') + '</div>' +
+          '<div class="order-seller">Placed ' + escHtml(dateStr) + '</div>' +
+        '</div>' +
+        '<span class="status-badge ' + statusClass + '">' + escHtml(statusLabel) + '</span>' +
+      '</div>' +
+      banner +
+      '<div class="order-footer">' +
+        '<div>' +
+          '<div class="order-price">$' + Number(o.total || 0).toFixed(2) + '</div>' +
+          '<div class="order-tier">' + tierLabel + ' Package</div>' +
+        '</div>' +
+        '<div class="order-actions">' + actions + '</div>' +
+      '</div>' +
+      (['active', 'in_progress', 'delivered'].indexOf(o.status) !== -1
+        ? '<button class="report-link" onclick="reportProblem(\'' + escHtml(o.id) + '\')">⚠️ Report a problem with this order</button>'
+        : '') +
+    '</div>';
+  }
+
+  // ── ACTIONS ───────────────────────────────────────────────────────────
+  function approveDelivery(orderId) {
+    pendingAction = { type: 'approve', orderId: orderId };
+    document.getElementById('modalTitle').textContent = 'Approve Delivery?';
+    document.getElementById('modalDesc').textContent = 'Confirming delivery will release the payment to the seller. Only approve if you are happy with the work.';
+    document.getElementById('modalConfirmBtn').style.background = 'var(--green)';
+    document.getElementById('modalConfirmBtn').textContent = '✅ Yes, Approve';
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  function requestRevision(orderId) {
+    pendingAction = { type: 'revision', orderId: orderId };
+    document.getElementById('modalTitle').textContent = 'Request Revision?';
+    document.getElementById('modalDesc').textContent = 'The order will be sent back to the seller for revision. Please message them with details of what needs to be changed.';
+    document.getElementById('modalConfirmBtn').style.background = 'var(--orange)';
+    document.getElementById('modalConfirmBtn').textContent = '🔄 Yes, Request Revision';
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  function reportProblem(orderId) {
+    pendingAction = { type: 'dispute', orderId: orderId };
+    document.getElementById('modalTitle').textContent = 'Report a problem';
+    document.getElementById('modalDesc').textContent = 'Try messaging the seller first. If you still cannot sort it out, describe the problem below. NEXORA will review the order, and your payment stays protected while we do.';
+    var t = document.getElementById('disputeText');
+    t.value = ''; t.style.display = 'block';
+    document.getElementById('modalConfirmBtn').style.background = 'var(--orange)';
+    document.getElementById('modalConfirmBtn').textContent = 'Send to NEXORA';
+    document.getElementById('modalOverlay').style.display = 'flex';
+    setTimeout(function() { t.focus(); }, 50);
+  }
+
+  function messageOrder(orderId, sellerId) {
+    window.location.href = 'messages.html?order=' + orderId + '&user=' + sellerId;
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+    document.getElementById('disputeText').style.display = 'none';
+    document.getElementById('disputeErr').style.display = 'none';
+    var b = document.getElementById('modalConfirmBtn'); b.disabled = false;
+    pendingAction = null;
+  }
+
+  async function modalConfirm() {
+    if (!pendingAction) return;
+    var btn = document.getElementById('modalConfirmBtn');
+    btn.textContent = '…';
+    btn.disabled = true;
+
+    if (pendingAction.type === 'approve') {
+      var { error } = await supa.from('orders').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+      }).eq('id', pendingAction.orderId);
+
+      closeModal();
+      if (error) { alert('Error: ' + error.message); return; }
+      await loadOrders();
+      // Show quick toast
+      showToast('✅ Order completed! Payment released to seller.');
+
+    } else if (pendingAction.type === 'dispute') {
+      var reason = document.getElementById('disputeText').value.trim();
+      var errEl = document.getElementById('disputeErr');
+      if (reason.length < 10) {
+        errEl.textContent = 'Please describe the problem in a sentence or two.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Send to NEXORA';
+        return;
+      }
+      var { error } = await supa.from('orders').update({
+        status: 'disputed',
+        dispute_reason: reason,
+      }).eq('id', pendingAction.orderId);
+      if (error) {
+        errEl.textContent = 'Could not send: ' + error.message;
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Send to NEXORA';
+        return;
+      }
+      closeModal();
+      await loadOrders();
+      showToast('🛡️ Problem reported. NEXORA will review this order.');
+
+    } else if (pendingAction.type === 'revision') {
+      var { error } = await supa.from('orders').update({
+        status: 'in_progress',
+      }).eq('id', pendingAction.orderId);
+
+      closeModal();
+      if (error) { alert('Error: ' + error.message); return; }
+      await loadOrders();
+      showToast('🔄 Revision requested. Message the seller with details.');
+    }
+  }
+
+  // ── TOAST ─────────────────────────────────────────────────────────────
+  function showToast(msg) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:white;padding:10px 18px;border-radius:10px;font-size:.82rem;font-weight:600;z-index:500;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ t.remove(); }, 3000);
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // Escape first, then turn plain https links into safe clickable links
+  function linkify(s) {
+    return escHtml(s).replace(/https?:\/\/[^\s<]+/g, function(url) {
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" style="color:var(--cyan-dark);word-break:break-all;">' + url + '</a>';
+    });
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

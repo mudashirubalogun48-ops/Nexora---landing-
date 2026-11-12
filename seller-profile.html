@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Seller Profile</title>
+  <meta name="description" content="See this seller's skills, background and services on NEXORA.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 92px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center; gap: 12px;
+      padding: 0 16px; position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+    }
+    .topbar-title { font-weight: 700; font-size: .92rem; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .share-btn {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+    }
+
+    .wrap { max-width: 640px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* HEADER CARD */
+    .hero {
+      background: var(--white); border: 1px solid var(--border); border-radius: 16px;
+      padding: 22px 16px 18px; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .photo {
+      width: 96px; height: 96px; border-radius: 50%; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700;
+    }
+    .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .name { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; line-height: 1.25; word-break: break-word; }
+    .headline { font-size: .88rem; color: var(--slate); line-height: 1.45; max-width: 420px; word-break: break-word; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 2px; }
+    .badge { font-size: .72rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+    .b-verified { background: var(--green-bg); color: #047857; border: 1px solid var(--green-border); }
+    .b-since { background: var(--off-white); color: var(--muted); border: 1px solid var(--border); }
+
+    /* SECTIONS */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+    .card h2 { font-size: .74rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 10px; }
+    .bio { font-size: .9rem; line-height: 1.6; color: var(--slate); white-space: pre-wrap; word-break: break-word; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { font-size: .78rem; font-weight: 600; padding: 6px 11px; border-radius: 20px; background: var(--cyan-light); color: var(--cyan-dark); }
+    .chip.lang { background: var(--purple-bg); color: var(--purple); }
+    .row + .row { margin-top: 14px; }
+
+    .trust {
+      display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px;
+      background: var(--green-bg); border: 1px solid var(--green-border);
+      font-size: .8rem; line-height: 1.5; color: #047857;
+    }
+    .trust strong { display: block; font-size: .85rem; }
+
+    /* GIGS */
+    .gigs-head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 2px 0; }
+    .gigs-head h2 { font-size: 1rem; font-weight: 700; }
+    .gigs-head span { font-size: .8rem; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .gig-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .gig-card:active { transform: scale(.98); }
+    .thumb { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: var(--off-white); }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gig-body { padding: 9px 10px 11px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .gig-title { font-size: .8rem; font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .gig-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+    .gig-price { font-size: .82rem; font-weight: 700; }
+    .gig-price span { font-weight: 400; color: var(--muted); font-size: .7rem; }
+    .gig-days { font-size: .7rem; color: var(--muted); }
+
+    /* ACTION BAR */
+    .action-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    }
+    .action-btn {
+      display: block; width: 100%; max-width: 608px; margin: 0 auto; text-align: center;
+      padding: 14px; border-radius: 12px; background: var(--cyan); color: white;
+      font-weight: 700; font-size: .95rem;
+    }
+    .action-btn.alt { background: var(--white); color: var(--charcoal); border: 1.5px solid var(--border); }
+
+    /* STATES */
+    .empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: .86rem; line-height: 1.5; background: var(--white); border: 1px dashed var(--border); border-radius: 12px; }
+    .state { padding: 64px 24px; text-align: center; }
+    .state .ic { font-size: 2.6rem; margin-bottom: 10px; }
+    .state h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .state p { font-size: .86rem; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .state a { display: inline-block; padding: 11px 20px; border-radius: 10px; background: var(--cyan); color: white; font-weight: 700; font-size: .88rem; }
+    .spin { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toast { position: fixed; bottom: 96px; left: 16px; right: 16px; text-align: center; background: var(--charcoal); color: white; padding: 11px 16px; border-radius: 10px; font-size: .84rem; font-weight: 600; z-index: 500; }
+
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="back-btn" onclick="if (history.length > 1) history.back(); else location.href = 'browse.html';" aria-label="Back">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+  </button>
+  <div class="topbar-title" id="topTitle">Seller profile</div>
+  <button class="share-btn" onclick="shareProfile()" aria-label="Share">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  </button>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="state"><div class="spin"></div>Loading profile…</div>
+</div>
+
+<div class="action-bar" id="actionBar" style="display:none"></div>
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  var CAT_LABELS = {
+    'programming': 'Programming & Tech', 'graphic-design': 'Graphics & Design', 'digital-marketing': 'Digital Marketing',
+    'content-writing': 'Writing & Translation', 'video-animation': 'Video & Animation', 'ai-services': 'AI Services',
+    'music-audio': 'Music & Audio', 'business': 'Business', 'consulting': 'Consulting'
+  };
+  var CAT_EMOJI = {
+    'programming': '💻', 'graphic-design': '🎨', 'digital-marketing': '📈', 'content-writing': '✍️',
+    'video-animation': '🎬', 'ai-services': '🤖', 'music-audio': '🎵', 'business': '💼', 'consulting': '🧭'
+  };
+  var COLORS = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#14b8a6'];
+
+  var supa, viewer = null, sellerId = new URLSearchParams(location.search).get('id');
+
+  (function init() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = load;
+    s.onerror = function() { showState('📡', 'Could not connect', 'Check your internet connection and try again.'); };
+    document.head.appendChild(s);
+  })();
+
+  async function load() {
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    if (!sellerId || !/^[0-9a-f-]{36}$/i.test(sellerId)) {
+      return showState('🔍', 'Profile not found', 'This link does not point to a seller on NEXORA.');
+    }
+
+    var { data: { session } } = await supa.auth.getSession();
+    viewer = session ? session.user : null;   // visitors can view; login is only needed to message
+
+    var results = await Promise.all([
+      supa.from('profiles').select('id, full_name, role, avatar_url, headline, bio, skills, languages, verified, created_at').eq('id', sellerId).maybeSingle(),
+      supa.from('gigs').select('id, title, category, basic_price, basic_days, cover_image, seller_name, created_at')
+        .eq('seller_id', sellerId).eq('status', 'active').order('created_at', { ascending: false })
+    ]);
+    var p = results[0].data;
+    var gigs = results[1].data || [];
+
+    if (!p && !gigs.length) {
+      return showState('🔍', 'Profile not found', 'This seller may have left NEXORA, or the link is incorrect.');
+    }
+    p = p || {};
+    var name = (p.full_name || (gigs[0] && gigs[0].seller_name) || 'Seller').trim();
+    render(p, name, gigs);
+  }
+
+  function render(p, name, gigs) {
+    document.title = 'NEXORA — ' + name;
+    document.getElementById('topTitle').textContent = name;
+
+    var html = '';
+
+    // Header
+    html += '<div class="hero">' +
+      '<div class="photo" style="background:' + colorFor(sellerId) + '">' + photoHtml(p.avatar_url, name) + '</div>' +
+      '<div class="name">' + escHtml(name) + '</div>' +
+      (p.headline ? '<div class="headline">' + escHtml(p.headline) + '</div>' : '') +
+      '<div class="badges">' +
+        (p.verified ? '<span class="badge b-verified">✓ Verified seller</span>' : '') +
+        (p.created_at ? '<span class="badge b-since">Member since ' + escHtml(monthYear(p.created_at)) + '</span>' : '') +
+      '</div>' +
+    '</div>';
+
+    // Escrow / trust note: true for every order on NEXORA
+    html += '<div class="trust"><span>🔒</span><div><strong>Escrow protection</strong>' +
+      'When you order from ' + escHtml(firstName(name)) + ', your payment is held safely and only released after you approve the delivery.</div></div>';
+
+    // About
+    if (p.bio) {
+      html += '<div class="card"><h2>About</h2><div class="bio">' + escHtml(p.bio) + '</div></div>';
+    }
+
+    // Skills + languages
+    var skills = splitList(p.skills), langs = splitList(p.languages);
+    if (skills.length || langs.length) {
+      html += '<div class="card">' +
+        (skills.length ? '<div class="row"><h2>Skills</h2><div class="chips">' + skills.map(function(x) { return '<span class="chip">' + escHtml(x) + '</span>'; }).join('') + '</div></div>' : '') +
+        (langs.length ? '<div class="row"><h2>Languages</h2><div class="chips">' + langs.map(function(x) { return '<span class="chip lang">' + escHtml(x) + '</span>'; }).join('') + '</div></div>' : '') +
+      '</div>';
+    }
+
+    // Gigs
+    html += '<div class="gigs-head"><h2>Services</h2><span>' + gigs.length + ' active</span></div>';
+    if (!gigs.length) {
+      html += '<div class="empty">' + escHtml(firstName(name)) + ' has no active services right now.</div>';
+    } else {
+      html += '<div class="grid">' + gigs.map(gigCard).join('') + '</div>';
+    }
+
+    document.getElementById('wrap').innerHTML = html;
+    renderAction(name, gigs);
+  }
+
+  function renderAction(name, gigs) {
+    var bar = document.getElementById('actionBar');
+    if (viewer && viewer.id === sellerId) {
+      bar.innerHTML = '<a class="action-btn alt" href="profile.html">✏️ Edit my profile</a>';
+    } else {
+      // Starting from a gig fills in the seller's name in the chat straight away
+      var target = gigs.length
+        ? 'messages.html?gig=' + encodeURIComponent(gigs[0].id)
+        : 'messages.html?user=' + encodeURIComponent(sellerId);
+      bar.innerHTML = '<a class="action-btn" href="' + target + '">💬 Message ' + escHtml(firstName(name)) + '</a>';
+    }
+    bar.style.display = 'block';
+  }
+
+  function gigCard(g) {
+    var cat = String(g.category || '').toLowerCase();
+    var thumb = g.cover_image && /^https:\/\//.test(g.cover_image)
+      ? '<img src="' + escHtml(g.cover_image) + '" alt="" loading="lazy">'
+      : (CAT_EMOJI[cat] || '💼');
+    var days = Number(g.basic_days) || 0;
+    return '<a class="gig-card" href="gig.html?id=' + encodeURIComponent(g.id) + '">' +
+      '<div class="thumb">' + thumb + '</div>' +
+      '<div class="gig-body">' +
+        '<div class="gig-title">' + escHtml(g.title || 'Untitled service') + '</div>' +
+        '<div class="gig-foot"><div class="gig-price">From $' + Number(g.basic_price || 0).toLocaleString() + '</div>' +
+        (days ? '<div class="gig-days">' + days + (days === 1 ? ' day' : ' days') + '</div>' : '') + '</div>' +
+      '</div></a>';
+  }
+
+  // ── HELPERS ──
+  function photoHtml(url, name) {
+    if (url && /^https:\/\//.test(url)) return '<img src="' + escHtml(url) + '" alt="' + escHtml(name) + '">';
+    var parts = name.split(/\s+/);
+    return escHtml(((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase());
+  }
+  function colorFor(id) {
+    var h = 0; String(id).split('').forEach(function(c) { h = (h * 31 + c.charCodeAt(0)) >>> 0; });
+    return COLORS[h % COLORS.length];
+  }
+  function splitList(s) {
+    return String(s || '').split(',').map(function(x) { return x.trim(); }).filter(Boolean).slice(0, 15);
+  }
+  function firstName(n) { return String(n || 'this seller').split(/\s+/)[0]; }
+  function monthYear(d) {
+    var x = new Date(d);
+    return isNaN(x) ? '' : x.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+  function showState(ic, title, text) {
+    document.getElementById('wrap').innerHTML = '<div class="state"><div class="ic">' + ic + '</div><h3>' + escHtml(title) + '</h3><p>' + escHtml(text) + '</p><a href="browse.html">Browse services</a></div>';
+  }
+  function shareProfile() {
+    if (navigator.share) { navigator.share({ title: document.title, url: location.href }).catch(function() {}); return; }
+    var ok = function() { toast('Link copied'); };
+    if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(ok, function() {});
+  }
+  function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function() { d.remove(); }, 2400); }
+  function escHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

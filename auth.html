@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join NEXORA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --error: #ef4444;
+      --success: #10b981;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--off-white);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* NAV */
+    .nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--charcoal);
+    }
+    .logo span {
+      display: inline-block;
+      width: 7px; height: 7px;
+      background: var(--cyan);
+      border-radius: 50%;
+      margin-left: 2px;
+      vertical-align: middle;
+      margin-bottom: 3px;
+    }
+
+    /* PAGE */
+    .page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px 48px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px 24px 36px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.07);
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: var(--off-white);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 28px;
+      gap: 4px;
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      border-radius: 6px;
+      font-size: .875rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      transition: all .2s;
+    }
+    .tab.on {
+      background: var(--white);
+      color: var(--charcoal);
+      box-shadow: 0 1px 6px rgba(0,0,0,.1);
+    }
+
+    /* PANELS */
+    .panel { display: none; }
+    .panel.on { display: block; }
+
+    /* HEADING */
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -.02em;
+    }
+    .sub {
+      font-size: .875rem;
+      color: var(--muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* ROLE PICKER */
+    .roles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .role {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 10px;
+      text-align: center;
+      background: var(--white);
+      transition: border-color .2s, background .2s;
+    }
+    .role.on {
+      border-color: var(--cyan);
+      background: #f0f9ff;
+    }
+    .role-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .role-label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+    .role-desc {
+      display: block;
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--slate);
+      margin-bottom: 5px;
+    }
+    .field input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 11px 14px;
+      font-size: .9rem;
+      color: var(--charcoal);
+      background: var(--white);
+      outline: none;
+      font-family: inherit;
+      transition: border-color .2s;
+    }
+    .field input:focus { border-color: var(--cyan); }
+    .field input::placeholder { color: #94a3b8; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* PASSWORD */
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .pw-eye {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+    }
+    .pw-eye svg { width: 18px; height: 18px; }
+
+    .forgot {
+      font-size: .78rem;
+      color: var(--cyan);
+      font-weight: 500;
+      float: right;
+      margin-top: -2px;
+    }
+
+    /* BUTTON */
+    .btn {
+      width: 100%;
+      background: var(--cyan);
+      color: var(--white);
+      border-radius: 6px;
+      padding: 13px 0;
+      font-size: .95rem;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-top: 10px;
+      transition: background .2s;
+      box-shadow: 0 4px 14px rgba(14,165,233,.3);
+    }
+    .btn:hover { background: var(--cyan-dark); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* DIVIDER */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* GOOGLE */
+    .google-btn {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 0;
+      font-size: .875rem;
+      font-weight: 500;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--white);
+      transition: border-color .2s;
+    }
+    .google-btn:hover { border-color: var(--cyan); }
+
+    /* TERMS */
+    .terms {
+      font-size: .72rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+    .terms a { color: var(--cyan); }
+
+    /* SWITCH */
+    .switch {
+      text-align: center;
+      font-size: .83rem;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    .switch button {
+      color: var(--cyan);
+      font-weight: 600;
+      font-size: .83rem;
+    }
+
+    /* ALERT */
+    .alert {
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: .83rem;
+      margin-bottom: 14px;
+      display: none;
+      line-height: 1.4;
+    }
+    .alert.err { display: block; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+    .alert.ok  { display: block; background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 420px) {
+      .card { padding: 24px 16px 28px; }
+      .row { grid-template-columns: 1fr; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html" class="logo">NEXORA<span></span></a>
+</nav>
+
+<main class="page">
+  <div class="card">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab on" id="t-signup" onclick="go('signup')">Create account</button>
+      <button class="tab"    id="t-login"  onclick="go('login')">Sign in</button>
+    </div>
+
+    <!-- ALERT -->
+    <div class="alert" id="alert"></div>
+
+    <!-- SIGN UP PANEL -->
+    <div class="panel on" id="p-signup">
+      <h1>Join NEXORA</h1>
+      <p class="sub">Create your free account in seconds.</p>
+
+      <div class="roles">
+        <button type="button" class="role on" id="r-buyer" onclick="pickRole('buyer')">
+          <div class="role-icon">🛍️</div>
+          <span class="role-label">I want to hire</span>
+          <span class="role-desc">Find &amp; pay for services</span>
+        </button>
+        <button type="button" class="role" id="r-seller" onclick="pickRole('seller')">
+          <div class="role-icon">💼</div>
+          <span class="role-label">I want to work</span>
+          <span class="role-desc">Sell your skills</span>
+        </button>
+      </div>
+
+      <form onsubmit="doSignup(event)" novalidate>
+        <div class="row">
+          <div class="field">
+            <label>First name</label>
+            <input type="text" id="su-first" placeholder="Ada" required>
+          </div>
+          <div class="field">
+            <label>Last name</label>
+            <input type="text" id="su-last" placeholder="Lovelace" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="su-email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="su-pw" placeholder="At least 8 characters" required>
+            <button type="button" class="pw-eye" onclick="togglePw('su-pw',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="btn-signup">Create account</button>
+      </form>
+
+      <div class="divider">or</div>
+      <button type="button" class="google-btn" onclick="doGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.548 0 9s.347 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+
+      <p class="terms">By creating an account you agree to NEXORA's <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>.</p>
+      <p class="switch">Already have an account? <button onclick="go('login')">Sign in</button></p>
+    </div>
+
+    <!-- SIGN IN PANEL -->
+    <div class="panel" id="p-login">
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in to your NEXORA account.</p>
+
+      <form onsubmit="doLogin(event)" novalidate>
+        <div class="field">
+          <label>Email address</label>
+          <input type="email" id="li-email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label>Password <a href="#" class="forgot" onclick="doForgot(event)">Forgot password?</a></label>
+          <div class="pw-wrap">
+            <input type="password" id="li-pw" placeholder="Your password" required>
+            <button type="button" class="pw-eye" onclick="togglePw('li-pw',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="btn-login">Sign in</button>
+      </form>
+
+      <div class="divider">or</div>
+      <button type="button" class="google-btn" onclick="doGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.548 0 9s.347 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+
+      <p class="switch">Don't have an account? <button onclick="go('signup')">Create one free</button></p>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  /* ── Tab + panel switcher — pure JS, no external deps ── */
+  function go(name) {
+    /* tabs */
+    document.getElementById('t-signup').className = 'tab' + (name === 'signup' ? ' on' : '');
+    document.getElementById('t-login').className  = 'tab' + (name === 'login'  ? ' on' : '');
+    /* panels */
+    document.getElementById('p-signup').className = 'panel' + (name === 'signup' ? ' on' : '');
+    document.getElementById('p-login').className  = 'panel' + (name === 'login'  ? ' on' : '');
+    /* clear alert */
+    var a = document.getElementById('alert');
+    a.className = 'alert'; a.textContent = '';
+  }
+
+  /* ── Role picker ── */
+  var role = 'buyer';
+  function pickRole(r) {
+    role = r;
+    document.getElementById('r-buyer').className  = 'role' + (r === 'buyer'  ? ' on' : '');
+    document.getElementById('r-seller').className = 'role' + (r === 'seller' ? ' on' : '');
+  }
+
+  /* ── Alert ── */
+  function msg(text, type) {
+    var a = document.getElementById('alert');
+    a.textContent = text;
+    a.className = 'alert ' + (type || 'err');
+  }
+
+  /* ── Password toggle ── */
+  function togglePw(id, btn) {
+    var inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
+  /* ── Load Supabase then wire up auth ── */
+  var supa;
+  var script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.onload = function() {
+    supa = window.supabase.createClient(
+      'https://tzzhbzaxoodxbcezcynw.supabase.co',
+      'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX'
+    );
+    /* Already signed in (or just back from Google)? Go straight on. */
+    if (location.hash.indexOf('type=recovery') === -1) {
+      supa.auth.getSession().then(function(res) {
+        if (res.data && res.data.session) {
+          var m = res.data.session.user.user_metadata || {};
+          goAfterAuth(m.role);
+        }
+      });
+    }
+  };
+  document.head.appendChild(script);
+
+  /* ── Where to go after signing in ──
+     auth.html?next=page.html sends the person back to the page they came from.
+     Only plain pages on this site are accepted. */
+  (function rememberNext() {
+    var n = new URLSearchParams(location.search).get('next');
+    if (n && /^[a-z0-9-]+\.html(\?[^#\\]*)?$/i.test(n) && !/^auth\.html/i.test(n)) {
+      try { sessionStorage.setItem('nexora_next', n); } catch (e) {}
+    }
+    var wantLogin = new URLSearchParams(location.search).get('mode') === 'login';
+    document.addEventListener('DOMContentLoaded', function() {
+      if (wantLogin) go('login');
+      if (n) msg('Log in or create a free account to continue. You will come straight back.', 'ok');
+    });
+  })();
+
+  function goAfterAuth(r) {
+    var n = null;
+    try { n = sessionStorage.getItem('nexora_next'); sessionStorage.removeItem('nexora_next'); } catch (e) {}
+    if (!r) { location.href = 'pick-role.html'; return; }
+    if (n && /^[a-z0-9-]+\.html(\?[^#\\]*)?$/i.test(n)) { location.href = n; return; }
+    location.href = r === 'seller' ? 'seller-dashboard.html' : 'buyer-dashboard.html';
+  }
+
+  /* ── Sign up ── */
+  async function doSignup(e) {
+    e.preventDefault();
+    if (!supa) { msg('Still loading, try again in a moment.'); return; }
+    var first = document.getElementById('su-first').value.trim();
+    var last  = document.getElementById('su-last').value.trim();
+    var email = document.getElementById('su-email').value.trim();
+    var pw    = document.getElementById('su-pw').value;
+    if (!first || !last) { msg('Enter your first and last name.'); return; }
+    if (!email)          { msg('Enter your email address.'); return; }
+    if (pw.length < 8)   { msg('Password must be at least 8 characters.'); return; }
+    var btn = document.getElementById('btn-signup');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Please wait…';
+    var res = await supa.auth.signUp({
+      email, password: pw,
+      options: { data: { full_name: first + ' ' + last, role: role } }
+    });
+    btn.disabled = false; btn.textContent = 'Create account';
+    if (res.error) { msg(res.error.message); return; }
+    if (res.data.session) {
+      /* fetch fresh user — session metadata can be stale */
+      var { data: { user: newUser } } = await supa.auth.getUser();
+      var r = (newUser && newUser.user_metadata) ? newUser.user_metadata.role : null;
+      goAfterAuth(r);
+      return;
+    }
+    msg('Account created! Check your email to confirm, then sign in.', 'ok');
+  }
+
+  /* ── Sign in ── */
+  async function doLogin(e) {
+    e.preventDefault();
+    if (!supa) { msg('Still loading, try again in a moment.'); return; }
+    var email = document.getElementById('li-email').value.trim();
+    var pw    = document.getElementById('li-pw').value;
+    if (!email || !pw) { msg('Enter your email and password.'); return; }
+    var btn = document.getElementById('btn-login');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Please wait…';
+    var res = await supa.auth.signInWithPassword({ email, password: pw });
+    btn.disabled = false; btn.textContent = 'Sign in';
+    if (res.error) {
+      msg(res.error.message === 'Invalid login credentials'
+        ? 'Incorrect email or password.' : res.error.message);
+      return;
+    }
+    /* fetch fresh user to get latest metadata */
+    var { data: { user } } = await supa.auth.getUser();
+    var r = (user && user.user_metadata) ? user.user_metadata.role : null;
+    goAfterAuth(r);
+  }
+
+  /* ── Google OAuth ── */
+  async function doGoogle() {
+    if (!supa) { msg('Still loading, try again in a moment.'); return; }
+    var res = await supa.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: location.origin + '/auth.html' }
+    });
+    if (res.error) msg(res.error.message);
+  }
+
+  /* ── Forgot password ── */
+  async function doForgot(e) {
+    e.preventDefault();
+    if (!supa) { msg('Still loading, try again in a moment.'); return; }
+    var email = document.getElementById('li-email').value.trim();
+    if (!email) { msg('Enter your email address first, then click Forgot password.'); return; }
+    var res = await supa.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + '/auth.html'
+    });
+    if (res.error) msg(res.error.message);
+    else msg('Password reset email sent. Check your inbox.', 'ok');
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

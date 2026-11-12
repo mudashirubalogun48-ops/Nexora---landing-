@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — My Profile</title>
+  <meta name="description" content="Set up your NEXORA profile.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --orange-border: #fde68a;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 90px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center; padding: 0 16px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .topbar-title { margin-left: auto; font-size: .82rem; font-weight: 600; color: var(--muted); }
+
+    .wrap { max-width: 560px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* PHOTO */
+    .photo-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 20px 16px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+    .photo {
+      width: 104px; height: 104px; border-radius: 50%; overflow: hidden; position: relative;
+      background: linear-gradient(135deg, var(--cyan), var(--purple)); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Grotesk', sans-serif; font-size: 2.1rem; font-weight: 700;
+    }
+    .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-btn { padding: 9px 16px; border-radius: 9px; border: 1.5px solid var(--border); font-size: .82rem; font-weight: 700; color: var(--slate); }
+    .photo-hint { font-size: .72rem; color: var(--muted); }
+    .photo-name { font-weight: 700; font-size: 1rem; }
+    .role-chip { font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+    .role-seller { background: #f5f3ff; color: var(--purple); }
+    .role-buyer { background: var(--cyan-light); color: var(--cyan-dark); }
+
+    /* VERIFY STATUS */
+    .status { border-radius: 12px; padding: 12px 14px; display: flex; gap: 10px; font-size: .8rem; line-height: 1.5; }
+    .status .ic { font-size: 1.1rem; flex-shrink: 0; }
+    .status strong { display: block; font-size: .86rem; margin-bottom: 2px; }
+    .st-ok { background: var(--green-bg); border: 1px solid var(--green-border); color: #047857; }
+    .st-wait { background: var(--orange-bg); border: 1px solid var(--orange-border); color: #92400e; }
+
+    /* FORM */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .card h3 { font-size: .9rem; font-weight: 700; }
+    .field label { display: flex; justify-content: space-between; font-size: .78rem; font-weight: 700; color: var(--slate); margin-bottom: 6px; }
+    .field label span { font-weight: 500; color: var(--muted); }
+    .field input, .field textarea {
+      width: 100%; padding: 11px 12px; border-radius: 10px; border: 1.5px solid var(--border);
+      font-family: inherit; font-size: .9rem; color: var(--charcoal); background: var(--white);
+    }
+    .field textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--cyan); }
+    .field .hint { font-size: .72rem; color: var(--muted); margin-top: 5px; }
+
+    .save-bar { position: fixed; left: 0; right: 0; bottom: 62px; padding: 10px 16px; background: linear-gradient(to top, var(--off-white) 70%, transparent); z-index: 150; }
+    .save-btn { width: 100%; max-width: 528px; margin: 0 auto; display: block; padding: 14px; border-radius: 12px; background: var(--cyan); color: white; font-size: .95rem; font-weight: 700; box-shadow: 0 6px 18px rgba(14,165,233,.3); }
+    .save-btn:disabled { opacity: .6; }
+    .signout { align-self: center; font-size: .82rem; font-weight: 600; color: var(--red); padding: 10px; margin-bottom: 70px; }
+
+    .msg { font-size: .8rem; padding: 10px 12px; border-radius: 10px; display: none; }
+    .msg.err { display: block; background: var(--red-bg); color: var(--red); }
+
+    .loading { padding: 64px 16px; text-align: center; color: var(--muted); font-size: .88rem; }
+    .spin { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+    .spin-sm { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.5); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 200; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 2px 10px; gap: 3px; font-size: .62rem; font-weight: 600; color: var(--muted); }
+    .nav-item.active { color: var(--cyan); }
+    .nav-item svg { width: 22px; height: 22px; }
+
+    .toast { position: fixed; bottom: 140px; left: 16px; right: 16px; text-align: center; background: var(--charcoal); color: white; padding: 11px 16px; border-radius: 10px; font-size: .84rem; font-weight: 600; z-index: 500; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="#" id="homeLink" class="logo">NEXORA</a>
+  <span class="topbar-title">My Profile</span>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="loading"><div class="spin"></div>Loading your profile…</div>
+</div>
+
+<div class="save-bar" id="saveBar" style="display:none">
+  <button class="save-btn" id="saveBtn" onclick="saveProfile()">Save Profile</button>
+</div>
+
+<nav class="nav-bar" id="navBar"></nav>
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="pickPhoto(this)">
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  var supa, me, role, profile = {};
+  var newPhotoBlob = null;
+
+  (function init() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = async function() {
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var { data: { session } } = await supa.auth.getSession();
+      if (!session) { location.href = 'auth.html?next=profile.html'; return; }
+      var { data: { user } } = await supa.auth.getUser();
+      me = user || session.user;
+      var meta = me.user_metadata || {};
+      role = meta.role;
+      if (!role) { location.href = 'pick-role.html'; return; }
+      document.getElementById('homeLink').href = role === 'seller' ? 'seller-dashboard.html' : 'buyer-dashboard.html';
+      renderNav();
+
+      var { data, error } = await supa.from('profiles').select('*').eq('id', me.id).maybeSingle();
+      if (error) return fatal('Could not load your profile: ' + error.message);
+      profile = data || {};
+      if (!profile.full_name) profile.full_name = meta.full_name || '';
+      if (!profile.avatar_url && meta.avatar_url) profile.avatar_url = meta.avatar_url;
+      render();
+    };
+    s.onerror = function() { fatal('Could not connect. Check your internet and refresh.'); };
+    document.head.appendChild(s);
+  })();
+
+  function render() {
+    var seller = role === 'seller';
+    var html = '';
+
+    html += '<div class="photo-card">' +
+      '<div class="photo" id="photo">' + photoInner() + '</div>' +
+      '<button class="photo-btn" onclick="document.getElementById(\'fileInput\').click()">📷 ' + (profile.avatar_url ? 'Change photo' : 'Add a photo') + '</button>' +
+      '<div class="photo-hint">A clear photo of your face builds trust. JPG, PNG or WebP.</div>' +
+      '<div class="photo-name" id="nameShow">' + escHtml(profile.full_name || 'Your name') + '</div>' +
+      '<span class="role-chip ' + (seller ? 'role-seller' : 'role-buyer') + '">' + (seller ? 'Seller account' : 'Buyer account') + '</span>' +
+    '</div>';
+
+    if (seller) {
+      html += '<a href="seller-profile.html?id=' + encodeURIComponent(me.id) + '" style="display:block;text-align:center;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--white);font-weight:700;font-size:.86rem;color:var(--charcoal);">👁️ View my public profile</a>';
+      html += profile.verified
+        ? '<div class="status st-ok"><span class="ic">✅</span><div><strong>Verified seller</strong>Your gigs are live for buyers, with the ✓ Verified badge.</div></div>'
+        : '<div class="status st-wait"><span class="ic">⏳</span><div><strong>Verification pending</strong>NEXORA reviews every seller before their gigs go live. Until then, buyers cannot see your gigs. Add a photo, headline and bio so your profile is ready for review.</div></div>';
+    }
+
+    html += '<div class="card"><h3>About you</h3>' +
+      field('full_name', 'Display name', 'input', 60, 'Your full name or business name', '') +
+      (seller ? field('headline', 'Headline', 'input', 80, 'e.g. Brand designer for small businesses', 'One line that sums up what you do.') : '') +
+      field('bio', seller ? 'Bio' : 'About you', 'textarea', 1000,
+        seller ? 'Describe your experience, how you work and what buyers can expect.' : 'Tell sellers a little about you or your business.',
+        seller ? 'Buyers read this before ordering.' : 'Optional, but it helps sellers understand your projects.') +
+    '</div>';
+
+    if (seller) {
+      html += '<div class="card"><h3>Skills</h3>' +
+        field('skills', 'Skills', 'input', 300, 'e.g. Logo design, Branding, Illustrator', 'Separate with commas.') +
+        field('languages', 'Languages', 'input', 150, 'e.g. English, French', 'Languages you can work in.') +
+      '</div>';
+    }
+
+    html += '<div class="msg" id="formMsg"></div>';
+    html += '<a id="adminLink" href="admin.html" style="display:none;text-align:center;padding:12px;border-radius:10px;background:var(--charcoal);color:#fff;font-weight:700;font-size:.88rem;">🛠️ Open admin panel</a>';
+    html += '<button class="signout" onclick="signOut()">Sign out</button>';
+
+    document.getElementById('wrap').innerHTML = html;
+    document.getElementById('saveBar').style.display = 'block';
+    // Admin shortcut: only shows if this account is on the admins list
+    supa.from('admins').select('user_id').eq('user_id', me.id).limit(1).then(function(r) {
+      var l = document.getElementById('adminLink');
+      if (l && r.data && r.data.length) l.style.display = 'block';
+    });
+
+    ['full_name', 'headline', 'bio', 'skills', 'languages'].forEach(function(k) {
+      var el = document.getElementById('f_' + k);
+      if (!el) return;
+      el.value = profile[k] || '';
+      updateCount(k);
+      el.addEventListener('input', function() {
+        updateCount(k);
+        if (k === 'full_name') document.getElementById('nameShow').textContent = el.value.trim() || 'Your name';
+      });
+    });
+  }
+
+  function field(key, label, type, max, ph, hint) {
+    var input = type === 'textarea'
+      ? '<textarea id="f_' + key + '" maxlength="' + max + '" placeholder="' + escHtml(ph) + '"></textarea>'
+      : '<input id="f_' + key + '" maxlength="' + max + '" placeholder="' + escHtml(ph) + '">';
+    return '<div class="field"><label for="f_' + key + '">' + label + ' <span id="c_' + key + '">0/' + max + '</span></label>' + input +
+      (hint ? '<div class="hint">' + hint + '</div>' : '') + '</div>';
+  }
+
+  function updateCount(k) {
+    var el = document.getElementById('f_' + k), c = document.getElementById('c_' + k);
+    if (el && c) c.textContent = el.value.length + '/' + el.maxLength;
+  }
+
+  function photoInner() {
+    if (newPhotoBlob) return '<img src="' + URL.createObjectURL(newPhotoBlob) + '" alt="Your profile photo">';
+    if (profile.avatar_url && /^https:\/\//.test(profile.avatar_url)) return '<img src="' + escHtml(profile.avatar_url) + '" alt="Your profile photo">';
+    var n = String(profile.full_name || '?').trim().split(/\s+/);
+    return escHtml(((n[0] || '?')[0] + (n.length > 1 ? n[n.length - 1][0] : '')).toUpperCase());
+  }
+
+  // Turn the chosen photo into a 512px square JPEG.
+  // Tries three decoders so it works across Android galleries and browsers.
+  async function pickPhoto(input) {
+    var file = input.files && input.files[0];
+    input.value = '';
+    if (!file) return;
+    hideMsg();
+    if (file.size > 20 * 1024 * 1024) return showMsg('That image is too large. Please choose one under 20 MB.');
+
+    var name = (file.name || '').toLowerCase();
+    var looksHeic = /heic|heif/.test(file.type) || /\.(heic|heif)$/.test(name);
+
+    toast('Preparing photo…');
+    var source = await decodeImage(file);
+
+    if (!source) {
+      // Could not decode. If it's already a small JPG/PNG/WebP, upload it as it is.
+      if (/^image\/(jpeg|png|webp)$/.test(file.type) && file.size <= 2 * 1024 * 1024) {
+        newPhotoBlob = file;
+        document.getElementById('photo').innerHTML = photoInner();
+        return toast('Photo ready. Tap Save Profile to keep it.');
+      }
+      return showMsg(looksHeic
+        ? 'This photo is in HEIC format, which browsers cannot open. Take a screenshot of the photo and upload the screenshot, or set your camera to save photos as JPG.'
+        : 'Could not open that image. Please try a JPG or PNG photo, or take a screenshot of it and upload the screenshot.');
+    }
+
+    try {
+      var w = source.width, h = source.height, side = Math.min(w, h), size = 512;
+      var c = document.createElement('canvas'); c.width = size; c.height = size;
+      var ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, size, size);
+      ctx.drawImage(source, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
+      if (source.close) source.close();
+      var blob = await new Promise(function(res) {
+        if (c.toBlob) c.toBlob(res, 'image/jpeg', 0.85);
+        else res(dataUrlToBlob(c.toDataURL('image/jpeg', 0.85)));
+      });
+      if (!blob) blob = dataUrlToBlob(c.toDataURL('image/jpeg', 0.85));
+      newPhotoBlob = blob;
+      document.getElementById('photo').innerHTML = photoInner();
+      toast('Photo ready. Tap Save Profile to keep it.');
+    } catch (e) {
+      showMsg('Could not prepare that image. Please try another photo or a screenshot.');
+    }
+  }
+
+  async function decodeImage(file) {
+    // 1. Modern browsers (also fixes sideways phone photos)
+    if (window.createImageBitmap) {
+      try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {}
+      try { return await createImageBitmap(file); } catch (e) {}
+    }
+    // 2. Read the file as data and load it into an <img>
+    var dataUrl = await new Promise(function(res) {
+      var r = new FileReader();
+      r.onload = function() { res(r.result); };
+      r.onerror = function() { res(null); };
+      r.readAsDataURL(file);
+    });
+    if (!dataUrl) return null;
+    return await new Promise(function(res) {
+      var img = new Image();
+      img.onload = function() { res(img.naturalWidth ? img : null); };
+      img.onerror = function() { res(null); };
+      img.src = dataUrl;
+    });
+  }
+
+  function dataUrlToBlob(u) {
+    try {
+      var parts = u.split(','), bin = atob(parts[1]), arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], { type: 'image/jpeg' });
+    } catch (e) { return null; }
+  }
+
+  async function saveProfile() {
+    var val = function(k) { var el = document.getElementById('f_' + k); return el ? el.value.trim() : null; };
+    var name = val('full_name');
+    if (!name || name.length < 2) return showMsg('Please enter your display name.');
+
+    var btn = document.getElementById('saveBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spin-sm"></span>Saving…';
+    hideMsg();
+
+    var avatarUrl = profile.avatar_url || null;
+    if (newPhotoBlob) {
+      var ctype = /^image\/(jpeg|png|webp)$/.test(newPhotoBlob.type) ? newPhotoBlob.type : 'image/jpeg';
+      var ext = ctype === 'image/png' ? 'png' : ctype === 'image/webp' ? 'webp' : 'jpg';
+      var path = me.id + '/' + Date.now() + '.' + ext;
+      var up = await supa.storage.from('avatars').upload(path, newPhotoBlob, { contentType: ctype, cacheControl: '3600', upsert: false });
+      if (up.error) { resetBtn(); return showMsg('Photo upload failed: ' + up.error.message); }
+      avatarUrl = supa.storage.from('avatars').getPublicUrl(path).data.publicUrl;
+    }
+
+    var row = { id: me.id, full_name: name, role: role, avatar_url: avatarUrl, bio: val('bio') };
+    if (role === 'seller') { row.headline = val('headline'); row.skills = val('skills'); row.languages = val('languages'); }
+
+    var { data, error } = await supa.from('profiles').upsert(row).select().single();
+    if (error) { resetBtn(); return showMsg('Could not save: ' + error.message); }
+
+    // Keep the account name/photo in sync so dashboards and gigs show it
+    await supa.auth.updateUser({ data: { full_name: name, avatar_url: avatarUrl, bio: (row.bio || '').slice(0, 280) } });
+
+    profile = data; newPhotoBlob = null;
+    resetBtn();
+    render();
+    toast('✅ Profile saved');
+  }
+
+  function resetBtn() { var b = document.getElementById('saveBtn'); b.disabled = false; b.textContent = 'Save Profile'; }
+
+  async function signOut() {
+    await supa.auth.signOut();
+    location.href = 'auth.html';
+  }
+
+  function renderNav() {
+    var icons = {
+      home: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+      gigs: '<path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+      orders: '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+      browse: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+      msgs: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+      profile: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>'
+    };
+    var items = role === 'seller'
+      ? [['seller-dashboard.html', 'home', 'Home'], ['create-gig.html', 'gigs', 'Gigs'], ['seller-orders.html', 'orders', 'Orders'], ['messages.html', 'msgs', 'Messages'], ['profile.html', 'profile', 'Profile']]
+      : [['browse.html', 'browse', 'Browse'], ['orders.html', 'orders', 'Orders'], ['messages.html', 'msgs', 'Messages'], ['profile.html', 'profile', 'Profile']];
+    document.getElementById('navBar').innerHTML = items.map(function(i) {
+      return '<a href="' + i[0] + '" class="nav-item' + (i[1] === 'profile' ? ' active' : '') + '"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' + icons[i[1]] + '</svg>' + i[2] + '</a>';
+    }).join('');
+  }
+
+  function showMsg(t) { var m = document.getElementById('formMsg'); if (!m) return alert(t); m.textContent = t; m.className = 'msg err'; m.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  function hideMsg() { var m = document.getElementById('formMsg'); if (m) m.className = 'msg'; }
+  function fatal(t) { document.getElementById('wrap').innerHTML = '<div class="loading">😕<br><br>' + escHtml(t) + '</div>'; }
+  function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function() { d.remove(); }, 2800); }
+  function escHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Create a Gig</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple: #8b5cf6; --purple-dark: #7c3aed; --purple-bg: #f5f3ff;
+      --cyan: #0ea5e9;
+      --charcoal: #1e293b; --slate: #334155; --muted: #64748b;
+      --border: #e2e8f0; --off-white: #f8fafc; --white: #ffffff;
+      --success: #10b981; --error: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── NAV ── */
+    .nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 60px; display: flex; align-items: center;
+      padding: 0 20px; position: sticky; top: 0; z-index: 50;
+    }
+    .nav__inner { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 860px; margin: 0 auto; }
+    .logo { font-family: 'Space Grotesk', sans-serif; font-size: 1.25rem; font-weight: 800; letter-spacing: -.03em; }
+    .logo span { display: inline-block; width: 7px; height: 7px; background: var(--cyan); border-radius: 50%; margin-left: 2px; vertical-align: middle; margin-bottom: 3px; }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .85rem; font-weight: 500; color: var(--muted);
+      padding: 6px 0;
+    }
+    .back-btn svg { width: 16px; height: 16px; }
+    .back-btn:hover { color: var(--charcoal); }
+
+    /* ── PAGE LAYOUT ── */
+    .page { max-width: 860px; margin: 0 auto; padding: 28px 16px 80px; }
+
+    /* ── PROGRESS STEPS ── */
+    .steps {
+      display: flex; align-items: center; gap: 0;
+      margin-bottom: 28px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .steps::-webkit-scrollbar { display: none; }
+    .step {
+      display: flex; align-items: center; gap: 8px;
+      flex-shrink: 0;
+    }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2px solid var(--border);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); background: var(--white);
+      transition: all .2s; flex-shrink: 0;
+    }
+    .step-label { font-size: .78rem; font-weight: 500; color: var(--muted); white-space: nowrap; }
+    .step.active .step-num { background: var(--purple); border-color: var(--purple); color: var(--white); }
+    .step.active .step-label { color: var(--charcoal); font-weight: 600; }
+    .step.done .step-num { background: var(--success); border-color: var(--success); color: var(--white); }
+    .step.done .step-label { color: var(--muted); }
+    .step-line { flex: 1; height: 2px; background: var(--border); min-width: 20px; max-width: 48px; }
+    .step-line.done { background: var(--success); }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 24px 20px; margin-bottom: 16px;
+      display: none;
+    }
+    .section-card.active { display: block; }
+    .section-card h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;
+    }
+    .section-card .section-desc { font-size: .83rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+    /* ── FIELDS ── */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .8rem; font-weight: 600; color: var(--slate); margin-bottom: 6px;
+    }
+    .field label span { font-size: .75rem; color: var(--muted); font-weight: 400; }
+    .field input, .field select, .field textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 11px 14px; font-size: .9rem; color: var(--charcoal);
+      background: var(--white); outline: none; font-family: 'Inter', sans-serif;
+      transition: border-color .18s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--purple); }
+    .field input::placeholder, .field textarea::placeholder { color: #94a3b8; }
+    .field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+    .char-count { font-size: .72rem; color: var(--muted); text-align: right; margin-top: 4px; }
+    .char-count.warn { color: var(--error); }
+
+    /* ── CATEGORY + SUBCATEGORY ── */
+    .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px; }
+
+    /* ── TAGS ── */
+    .tags-wrap {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; min-height: 48px;
+      cursor: text; transition: border-color .18s;
+    }
+    .tags-wrap:focus-within { border-color: var(--purple); }
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--purple-bg); border: 1px solid #ddd6fe;
+      color: var(--purple-dark); border-radius: 100px;
+      font-size: .78rem; font-weight: 600; padding: 3px 10px;
+    }
+    .tag-chip button { color: var(--purple-dark); font-size: .85rem; line-height: 1; padding: 0 2px; }
+    .tag-input {
+      border: none; outline: none; font-family: 'Inter', sans-serif;
+      font-size: .85rem; color: var(--charcoal); min-width: 120px;
+      background: transparent; padding: 2px 4px;
+    }
+    .tags-hint { font-size: .72rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── PRICING TIERS ── */
+    .tiers { display: flex; flex-direction: column; gap: 14px; }
+    .tier-card {
+      border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden;
+    }
+    .tier-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; background: var(--off-white);
+      border-bottom: 1.5px solid var(--border);
+    }
+    .tier-badge {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+    }
+    .tier-badge.basic    { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .tier-badge.standard { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .tier-badge.premium  { background: var(--purple-bg); color: var(--purple-dark); border: 1px solid #ddd6fe; }
+    .tier-body { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tier-body .field { margin-bottom: 0; }
+    .tier-body .field-full { grid-column: 1 / -1; }
+    .tier-delivery {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tier-delivery select { flex: 1; }
+
+    /* ── DELIVERABLES CHECKLIST ── */
+    .deliverables { display: flex; flex-direction: column; gap: 8px; }
+    .deliv-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 8px; background: var(--white);
+    }
+    .deliv-row input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--purple);
+      flex-shrink: 0; padding: 0; border: none;
+    }
+    .deliv-row label { font-size: .85rem; color: var(--charcoal); flex: 1; cursor: pointer; }
+    .deliv-row input[type="number"] {
+      width: 60px; text-align: center; padding: 6px 8px;
+      font-size: .85rem; flex-shrink: 0;
+    }
+    .deliv-row span { font-size: .78rem; color: var(--muted); white-space: nowrap; }
+
+    /* ── REQUIREMENTS ── */
+    .req-list { display: flex; flex-direction: column; gap: 10px; }
+    .req-item {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .req-item input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-size: .85rem; color: var(--charcoal);
+      font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color .18s;
+    }
+    .req-item input:focus { border-color: var(--purple); }
+    .req-item button { color: var(--muted); padding: 10px 8px; font-size: 1.1rem; flex-shrink: 0; }
+    .req-item button:hover { color: var(--error); }
+    .add-req-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .83rem; font-weight: 600; color: var(--purple);
+      padding: 8px 0; margin-top: 4px;
+    }
+    .add-req-btn:hover { color: var(--purple-dark); }
+
+    /* ── IMAGE UPLOAD ── */
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: 12px;
+      padding: 24px 16px; text-align: center;
+      cursor: pointer; transition: border-color .2s, background .2s;
+      position: relative; overflow: hidden;
+    }
+    .upload-zone:hover { border-color: var(--purple); background: var(--purple-bg); }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 2rem; margin-bottom: 10px; }
+    .upload-zone p { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+    .upload-zone strong { color: var(--purple); }
+    .preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+    .preview-wrap { position: relative; aspect-ratio: 4/3; }
+    .preview-img {
+      width: 100%; height: 100%; border-radius: 8px; object-fit: cover;
+      border: 1.5px solid var(--border); display: block;
+    }
+    .preview-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.6); color: white;
+      border-radius: 50%; width: 22px; height: 22px;
+      font-size: .75rem; display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ── ALERT ── */
+    .alert {
+      border-radius: 8px; padding: 12px 16px; font-size: .83rem;
+      margin-bottom: 16px; display: none; line-height: 1.5;
+    }
+    .alert.err { display: block; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+    .alert.ok  { display: block; background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
+
+    /* ── BOTTOM NAV BUTTONS ── */
+    .nav-btns {
+      display: flex; gap: 10px; margin-top: 20px;
+      position: sticky; bottom: 0;
+      background: var(--off-white); padding: 12px 0 4px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-back {
+      flex: 1; padding: 13px 0; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+      border: 1.5px solid var(--border); color: var(--charcoal);
+      transition: background .18s;
+    }
+    .btn-back:hover { background: var(--off-white); }
+    .btn-next {
+      flex: 2; padding: 13px 0; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700;
+      background: var(--purple); color: var(--white);
+      box-shadow: 0 4px 14px rgba(139,92,246,.3);
+      transition: background .18s;
+    }
+    .btn-next:hover { background: var(--purple-dark); }
+    .btn-next:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-publish {
+      flex: 2; padding: 13px 0; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700;
+      background: var(--success); color: var(--white);
+      box-shadow: 0 4px 14px rgba(16,185,129,.3);
+      transition: background .18s;
+    }
+    .btn-publish:hover { background: #059669; }
+    .btn-publish:disabled { opacity: .6; cursor: not-allowed; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.4); border-top-color: white;
+      border-radius: 50%; animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-screen {
+      display: none; text-align: center;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 48px 24px;
+    }
+    .success-screen.show { display: block; }
+    .success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+    .success-screen h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .success-screen p { font-size: .9rem; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+    .success-btns { display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto; }
+    .btn-purple {
+      padding: 13px 0; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700;
+      background: var(--purple); color: var(--white); display: block; text-align: center;
+      box-shadow: 0 4px 14px rgba(139,92,246,.3);
+    }
+    .btn-outline {
+      padding: 12px 0; border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 600;
+      border: 1.5px solid var(--border); color: var(--charcoal); display: block; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav__inner">
+    <a href="index.html" class="logo">NEXORA<span></span></a>
+    <a href="seller-dashboard.html" class="back-btn">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 17l-5-5 5-5"/></svg>
+      Back to dashboard
+    </a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- PROGRESS -->
+  <div class="steps" id="steps-bar" role="list">
+    <div class="step active" id="s1" role="listitem">
+      <div class="step-num">1</div>
+      <div class="step-label">Overview</div>
+    </div>
+    <div class="step-line" id="line1"></div>
+    <div class="step" id="s2" role="listitem">
+      <div class="step-num">2</div>
+      <div class="step-label">Pricing</div>
+    </div>
+    <div class="step-line" id="line2"></div>
+    <div class="step" id="s3" role="listitem">
+      <div class="step-num">3</div>
+      <div class="step-label">Details</div>
+    </div>
+    <div class="step-line" id="line3"></div>
+    <div class="step" id="s4" role="listitem">
+      <div class="step-num">4</div>
+      <div class="step-label">Gallery</div>
+    </div>
+  </div>
+
+  <div class="alert" id="alert"></div>
+
+  <!-- ── STEP 1: OVERVIEW ── -->
+  <div class="section-card active" id="step1">
+    <h2>Gig overview</h2>
+    <p class="section-desc">Give your gig a clear title and category so buyers can find it easily.</p>
+
+    <div class="field">
+      <label>Gig title <span id="title-count">0 / 80</span></label>
+      <input type="text" id="gig-title" maxlength="80"
+        placeholder="e.g. I will design a professional logo for your brand"
+        oninput="countChars('gig-title','title-count',80)">
+      <div class="char-count" id="title-hint">Start with "I will…" — be specific about what you deliver.</div>
+    </div>
+
+    <div class="field">
+      <label>Category</label>
+      <select id="gig-cat" onchange="updateSubcat()">
+        <option value="">Select a category</option>
+        <option value="programming">Programming &amp; Tech</option>
+        <option value="graphic-design">Graphics &amp; Design</option>
+        <option value="digital-marketing">Digital Marketing</option>
+        <option value="content-writing">Writing &amp; Translation</option>
+        <option value="video-animation">Video &amp; Animation</option>
+        <option value="ai-services">AI Services</option>
+        <option value="music-audio">Music &amp; Audio</option>
+        <option value="business">Business</option>
+        <option value="consulting">Consulting</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Subcategory</label>
+      <select id="gig-subcat">
+        <option value="">Select a category first</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Short description <span id="desc-count">0 / 120</span></label>
+      <input type="text" id="gig-desc" maxlength="120"
+        placeholder="One sentence that sells your gig at a glance"
+        oninput="countChars('gig-desc','desc-count',120)">
+    </div>
+
+    <div class="field">
+      <label>Search tags <span>Press Enter or comma to add (max 5)</span></label>
+      <div class="tags-wrap" id="tags-wrap" onclick="document.getElementById('tag-input').focus()">
+        <input type="text" id="tag-input" class="tag-input" placeholder="e.g. logo design"
+          onkeydown="handleTagKey(event)">
+      </div>
+      <div class="tags-hint">Tags help buyers find your gig in search.</div>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-next" onclick="goStep(2)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: PRICING ── -->
+  <div class="section-card" id="step2">
+    <h2>Pricing packages</h2>
+    <p class="section-desc">Set three tiers so buyers can choose the level of service they need.</p>
+
+    <div class="tiers">
+
+      <!-- BASIC -->
+      <div class="tier-card">
+        <div class="tier-head">
+          <span class="tier-badge basic">Basic</span>
+          <span style="font-size:.78rem;color:var(--muted);">Entry-level offer</span>
+        </div>
+        <div class="tier-body">
+          <div class="field">
+            <label>Package name</label>
+            <input type="text" id="b-name" placeholder="e.g. Starter" maxlength="40">
+          </div>
+          <div class="field">
+            <label>Price ($)</label>
+            <input type="number" id="b-price" placeholder="15" min="5" max="9999">
+            <div class="earn-hint" id="b-earn" style="font-size:.74rem;color:var(--muted);margin-top:5px;"></div>
+          </div>
+          <div class="field field-full">
+            <label>What's included</label>
+            <input type="text" id="b-include" placeholder="e.g. 1 concept, PNG file, 2 revisions" maxlength="100">
+          </div>
+          <div class="field">
+            <label>Delivery</label>
+            <select id="b-days">
+              <option value="1">1 day</option>
+              <option value="2">2 days</option>
+              <option value="3" selected>3 days</option>
+              <option value="5">5 days</option>
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Revisions</label>
+            <select id="b-rev">
+              <option value="0">None</option>
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="5">5</option>
+              <option value="unlimited">Unlimited</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- STANDARD -->
+      <div class="tier-card">
+        <div class="tier-head">
+          <span class="tier-badge standard">Standard</span>
+          <span style="font-size:.78rem;color:var(--muted);">Most popular</span>
+        </div>
+        <div class="tier-body">
+          <div class="field">
+            <label>Package name</label>
+            <input type="text" id="s-name" placeholder="e.g. Professional" maxlength="40">
+          </div>
+          <div class="field">
+            <label>Price ($)</label>
+            <input type="number" id="s-price" placeholder="45" min="5" max="9999">
+            <div class="earn-hint" id="s-earn" style="font-size:.74rem;color:var(--muted);margin-top:5px;"></div>
+          </div>
+          <div class="field field-full">
+            <label>What's included</label>
+            <input type="text" id="s-include" placeholder="e.g. 3 concepts, all files, 5 revisions" maxlength="100">
+          </div>
+          <div class="field">
+            <label>Delivery</label>
+            <select id="s-days">
+              <option value="1">1 day</option>
+              <option value="2">2 days</option>
+              <option value="3">3 days</option>
+              <option value="5" selected>5 days</option>
+              <option value="7">7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Revisions</label>
+            <select id="s-rev">
+              <option value="0">None</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="5" selected>5</option>
+              <option value="unlimited">Unlimited</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="tier-card">
+        <div class="tier-head">
+          <span class="tier-badge premium">Premium</span>
+          <span style="font-size:.78rem;color:var(--muted);">Full service</span>
+        </div>
+        <div class="tier-body">
+          <div class="field">
+            <label>Package name</label>
+            <input type="text" id="p-name" placeholder="e.g. Enterprise" maxlength="40">
+          </div>
+          <div class="field">
+            <label>Price ($)</label>
+            <input type="number" id="p-price" placeholder="120" min="5" max="9999">
+            <div class="earn-hint" id="p-earn" style="font-size:.74rem;color:var(--muted);margin-top:5px;"></div>
+          </div>
+          <div class="field field-full">
+            <label>What's included</label>
+            <input type="text" id="p-include" placeholder="e.g. Unlimited concepts, source files, priority support" maxlength="100">
+          </div>
+          <div class="field">
+            <label>Delivery</label>
+            <select id="p-days">
+              <option value="1">1 day</option>
+              <option value="2">2 days</option>
+              <option value="3">3 days</option>
+              <option value="5">5 days</option>
+              <option value="7" selected>7 days</option>
+              <option value="14">14 days</option>
+              <option value="30">30 days</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Revisions</label>
+            <select id="p-rev">
+              <option value="0">None</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="5">5</option>
+              <option value="unlimited" selected>Unlimited</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="goStep(1)">← Back</button>
+      <button class="btn-next" onclick="goStep(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: DETAILS ── -->
+  <div class="section-card" id="step3">
+    <h2>Gig details</h2>
+    <p class="section-desc">Give buyers the full picture — what you do, how you do it, and what they'll need to provide.</p>
+
+    <div class="field">
+      <label>Full description <span id="fdesc-count">0 / 1200</span></label>
+      <textarea id="gig-full-desc" maxlength="1200" rows="8"
+        placeholder="Describe your service in detail. What makes you stand out? What's your process? What results can the buyer expect?"
+        oninput="countChars('gig-full-desc','fdesc-count',1200)"></textarea>
+    </div>
+
+    <div class="field">
+      <label>What do you need from the buyer?</label>
+      <p style="font-size:.78rem;color:var(--muted);margin-bottom:10px;">List the information or files you need to start work.</p>
+      <div class="req-list" id="req-list">
+        <div class="req-item">
+          <input type="text" placeholder="e.g. Your brand name and preferred colours">
+          <button type="button" onclick="removeReq(this)">×</button>
+        </div>
+        <div class="req-item">
+          <input type="text" placeholder="e.g. Any existing logo files (if redesign)">
+          <button type="button" onclick="removeReq(this)">×</button>
+        </div>
+      </div>
+      <button type="button" class="add-req-btn" onclick="addReq()">
+        + Add another requirement
+      </button>
+    </div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="goStep(2)">← Back</button>
+      <button class="btn-next" onclick="goStep(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: GALLERY ── -->
+  <div class="section-card" id="step4">
+    <h2>Gig gallery</h2>
+    <p class="section-desc">Add up to 3 images that show off your best work. Buyers choose with their eyes first.</p>
+
+    <div class="upload-zone" id="upload-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+      <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+      <div class="upload-icon">🖼️</div>
+      <p><strong>Tap to upload images</strong><br>JPG or PNG · Max 5 MB each · Up to 3 images</p>
+    </div>
+    <div class="preview-grid" id="preview-grid"></div>
+
+    <div class="nav-btns">
+      <button class="btn-back" onclick="goStep(3)">← Back</button>
+      <button class="btn-publish" id="publish-btn" onclick="publishGig()">
+        Publish gig
+      </button>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS ── -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon">🎉</div>
+    <h2>Your gig is live!</h2>
+    <p>Buyers can now find and order your service. Keep your notifications on so you don't miss an order.</p>
+    <div class="success-btns">
+      <a href="seller-dashboard.html" class="btn-purple">Go to my dashboard</a>
+      <a href="create-gig.html" class="btn-outline">Create another gig</a>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  /* ── Auth guard: must be a seller ── */
+  var supa;
+  var gigData = {};
+
+  /* Show what the seller actually receives (90% after NEXORA's 10% fee) */
+  document.addEventListener('input', function(e) {
+    var m = e.target && e.target.id && e.target.id.match(/^([bsp])-price$/);
+    if (m) updateEarn(m[1]);
+  });
+  function updateEarn(t) {
+    var v = parseFloat((document.getElementById(t + '-price') || {}).value);
+    var el = document.getElementById(t + '-earn');
+    if (!el) return;
+    el.textContent = v > 0 ? 'You receive $' + (Math.round(v * 90) / 100).toFixed(2) + ' after NEXORA\'s 10% fee' : '';
+  }
+  var imageFiles = [];
+
+  /* ── Edit mode: create-gig.html?edit=GIG_ID ── */
+  var editId = new URLSearchParams(location.search).get('edit');
+  var editGig = null;
+
+  if (editId) {
+    document.title = 'NEXORA — Edit Gig';
+    document.addEventListener('DOMContentLoaded', function() {
+      var pb = document.getElementById('publish-btn');
+      pb.textContent = 'Save changes'; pb.disabled = true;
+      document.querySelector('#success-screen h2').textContent = 'Changes saved!';
+      document.querySelector('#success-screen p').textContent = 'Your gig has been updated. Orders already placed keep the price they were bought at.';
+      var again = document.querySelector('#success-screen .btn-outline');
+      again.textContent = 'View my gig';
+      again.href = 'gig.html?id=' + encodeURIComponent(editId);
+      showAlert('Loading your gig…', 'ok');
+    });
+  }
+
+  function setVal(id, v) {
+    var el = document.getElementById(id);
+    if (!el || v === null || v === undefined) return;
+    v = String(v);
+    if (el.tagName === 'SELECT' && !Array.prototype.some.call(el.options, function(o) { return o.value === v; })) {
+      var o = document.createElement('option'); o.value = v; o.textContent = v; el.appendChild(o);
+    }
+    el.value = v;
+  }
+
+  async function loadGigForEdit(userId) {
+    var { data: g, error } = await supa.from('gigs').select('*').eq('id', editId).maybeSingle();
+    if (error || !g) { showAlert('This gig could not be found.'); return; }
+    if (g.seller_id !== userId) { showAlert('You can only edit your own gigs.'); return; }
+    editGig = g;
+
+    setVal('gig-title', g.title);
+    setVal('gig-cat', g.category);
+    updateSubcat();
+    setVal('gig-subcat', g.subcategory);
+    setVal('gig-desc', g.short_desc);
+    setVal('gig-full-desc', g.full_desc);
+    countChars('gig-title', 'title-count', 80);
+    countChars('gig-desc', 'desc-count', 120);
+    countChars('gig-full-desc', 'fdesc-count', 1200);
+
+    tags = Array.isArray(g.tags) ? g.tags.slice(0, 5) : [];
+    renderTags();
+
+    var reqList = document.getElementById('req-list');
+    var reqs = Array.isArray(g.requirements) ? g.requirements : [];
+    if (reqs.length) {
+      reqList.innerHTML = '';
+      reqs.forEach(function(r) {
+        var div = document.createElement('div');
+        div.className = 'req-item';
+        div.innerHTML = '<input type="text"><button type="button" onclick="removeReq(this)">×</button>';
+        div.querySelector('input').value = r;
+        reqList.appendChild(div);
+      });
+    }
+
+    [['b', 'basic'], ['s', 'std'], ['p', 'prem']].forEach(function(t) {
+      setVal(t[0] + '-name', g[t[1] + '_name']);
+      setVal(t[0] + '-price', g[t[1] + '_price']);
+      setVal(t[0] + '-include', g[t[1] + '_includes']);
+      setVal(t[0] + '-days', g[t[1] + '_days']);
+      setVal(t[0] + '-rev', g[t[1] + '_revs']);
+    });
+
+    ['b', 's', 'p'].forEach(updateEarn);
+    renderPreviews();
+    var pb = document.getElementById('publish-btn');
+    pb.disabled = false; pb.textContent = 'Save changes';
+    showAlert('Editing "' + (g.title || 'your gig') + '". Change anything, then tap Save changes on the last step.', 'ok');
+  }
+
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload = function() {
+    supa = window.supabase.createClient(
+      'https://tzzhbzaxoodxbcezcynw.supabase.co',
+      'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX'
+    );
+    supa.auth.getSession().then(function(res) {
+      var session = res.data.session;
+      if (!session) { location.href = 'auth.html'; return; }
+      supa.auth.getUser().then(function(u) {
+        var role = u.data.user && u.data.user.user_metadata
+          ? u.data.user.user_metadata.role : null;
+        if (role === 'buyer') { location.href = 'buyer-dashboard.html'; return; }
+        if (!role) { location.href = 'pick-role.html'; return; }
+        if (editId) loadGigForEdit(u.data.user.id);
+      });
+    });
+  };
+  document.head.appendChild(s);
+
+  /* ── Step navigation ── */
+  var currentStep = 1;
+  var totalSteps  = 4;
+
+  function goStep(n) {
+    /* validate current step before advancing */
+    if (n > currentStep && !validateStep(currentStep)) return;
+
+    /* update cards */
+    for (var i = 1; i <= totalSteps; i++) {
+      var card = document.getElementById('step' + i);
+      card.classList.toggle('active', i === n);
+    }
+
+    /* update step indicators */
+    for (var i = 1; i <= totalSteps; i++) {
+      var el = document.getElementById('s' + i);
+      el.classList.remove('active','done');
+      if (i < n)      el.classList.add('done');
+      else if (i === n) el.classList.add('active');
+      /* update connecting lines */
+      var line = document.getElementById('line' + i);
+      if (line) line.classList.toggle('done', i < n);
+    }
+
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    clearAlert();
+  }
+
+  /* ── Validation ── */
+  function validateStep(n) {
+    if (n === 1) {
+      var title = document.getElementById('gig-title').value.trim();
+      var cat   = document.getElementById('gig-cat').value;
+      var desc  = document.getElementById('gig-desc').value.trim();
+      if (!title) { showAlert('Enter a gig title.'); return false; }
+      if (title.length < 20) { showAlert('Title is too short — aim for at least 20 characters.'); return false; }
+      if (!cat)   { showAlert('Select a category for your gig.'); return false; }
+      if (!desc)  { showAlert('Add a short description.'); return false; }
+    }
+    if (n === 2) {
+      var bp = parseFloat(document.getElementById('b-price').value);
+      var sp = parseFloat(document.getElementById('s-price').value);
+      var pp = parseFloat(document.getElementById('p-price').value);
+      if (!bp || bp < 5) { showAlert('Enter a valid Basic price (minimum $5).'); return false; }
+      if (!sp || sp < 5) { showAlert('Enter a valid Standard price (minimum $5).'); return false; }
+      if (!pp || pp < 5) { showAlert('Enter a valid Premium price (minimum $5).'); return false; }
+      if (sp <= bp) { showAlert('Standard price must be higher than Basic.'); return false; }
+      if (pp <= sp) { showAlert('Premium price must be higher than Standard.'); return false; }
+    }
+    if (n === 3) {
+      var fd = document.getElementById('gig-full-desc').value.trim();
+      if (fd.length < 100) { showAlert('Description is too short — tell buyers more about your service (at least 100 characters).'); return false; }
+    }
+    return true;
+  }
+
+  /* ── Alert ── */
+  function showAlert(text, type) {
+    var a = document.getElementById('alert');
+    a.textContent = text; a.className = 'alert ' + (type || 'err');
+    a.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function clearAlert() {
+    var a = document.getElementById('alert');
+    a.className = 'alert'; a.textContent = '';
+  }
+
+  /* ── Char counter ── */
+  function countChars(inputId, countId, max) {
+    var len = document.getElementById(inputId).value.length;
+    var el  = document.getElementById(countId);
+    el.textContent = len + ' / ' + max;
+    el.classList.toggle('warn', len > max * 0.9);
+  }
+
+  /* ── Subcategory map ── */
+  var subcats = {
+    'programming':       ['Web Development','Mobile Apps','Desktop Software','WordPress','Browser Extensions','Cybersecurity','Other'],
+    'graphic-design':    ['Logo Design','Brand Identity','Social Media Graphics','Illustration','UI / UX Design','Print Design','Other'],
+    'digital-marketing': ['Social Media Marketing','SEO','Email Marketing','PPC / Ads','Content Strategy','Influencer Marketing','Other'],
+    'content-writing':   ['Blog Articles','Copywriting','Product Descriptions','Proofreading','Translation','Scriptwriting','Other'],
+    'video-animation':   ['Video Editing','Explainer Videos','Intro & Outro','Animation','Subtitles','Short-form / Reels','Other'],
+    'ai-services':       ['AI Chatbot','AI Image Generation','Prompt Engineering','AI Automation','AI Writing','Other'],
+    'music-audio':       ['Music Production','Voice Over','Podcast Editing','Sound Effects','Jingles','Mixing & Mastering','Other'],
+    'business':          ['Virtual Assistant','Data Entry','Market Research','Business Plans','HR & Consulting','Other'],
+    'consulting':        ['Business Strategy','Career Coaching','Financial Advice','Legal Consulting','Tech Consulting','Other'],
+  };
+
+  function updateSubcat() {
+    var cat = document.getElementById('gig-cat').value;
+    var sel = document.getElementById('gig-subcat');
+    sel.innerHTML = '<option value="">Select subcategory</option>';
+    if (subcats[cat]) {
+      subcats[cat].forEach(function(sub) {
+        var opt = document.createElement('option');
+        opt.value = sub.toLowerCase().replace(/[\s\/]+/g,'-');
+        opt.textContent = sub;
+        sel.appendChild(opt);
+      });
+    }
+  }
+
+  /* ── Tags ── */
+  var tags = [];
+
+  function handleTagKey(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      var val = e.target.value.trim().replace(/,/g,'');
+      addTag(val);
+      e.target.value = '';
+    }
+    if (e.key === 'Backspace' && e.target.value === '' && tags.length) {
+      removeTagByIndex(tags.length - 1);
+    }
+  }
+
+  function addTag(val) {
+    if (!val || tags.length >= 5) return;
+    val = val.toLowerCase().slice(0, 30);
+    if (tags.indexOf(val) !== -1) return;
+    tags.push(val);
+    renderTags();
+  }
+
+  function removeTagByIndex(i) {
+    tags.splice(i, 1);
+    renderTags();
+  }
+
+  function renderTags() {
+    var wrap  = document.getElementById('tags-wrap');
+    var input = document.getElementById('tag-input');
+    wrap.innerHTML = '';
+    tags.forEach(function(t, i) {
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip';
+      chip.textContent = t;
+      var x = document.createElement('button');
+      x.type = 'button'; x.textContent = '×';
+      x.onclick = (function(idx) { return function() { removeTagByIndex(idx); }; })(i);
+      chip.appendChild(x);
+      wrap.appendChild(chip);
+    });
+    wrap.appendChild(input);
+    input.placeholder = tags.length >= 5 ? 'Max 5 tags' : 'Add a tag…';
+    input.disabled    = tags.length >= 5;
+  }
+
+  /* ── Requirements ── */
+  function addReq() {
+    var list = document.getElementById('req-list');
+    var div  = document.createElement('div');
+    div.className = 'req-item';
+    div.innerHTML = '<input type="text" placeholder="e.g. Reference links or examples"><button type="button" onclick="removeReq(this)">×</button>';
+    list.appendChild(div);
+  }
+
+  function removeReq(btn) {
+    var list = document.getElementById('req-list');
+    if (list.children.length > 1) btn.parentElement.remove();
+  }
+
+  /* ── Image upload ── */
+  function handleFiles(files) {
+    for (var i = 0; i < files.length; i++) {
+      if (imageFiles.length >= 3) break;
+      if (!files[i].type.startsWith('image/')) continue;
+      if (files[i].size > 5 * 1024 * 1024) { showAlert('Image must be under 5 MB.'); continue; }
+      imageFiles.push(files[i]);
+    }
+    renderPreviews();
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    handleFiles(e.dataTransfer.files);
+  }
+
+  function renderPreviews() {
+    var grid = document.getElementById('preview-grid');
+    grid.innerHTML = '';
+    if (editGig && editGig.cover_image && !imageFiles.length && /^https:\/\//.test(editGig.cover_image)) {
+      var cur = document.createElement('div');
+      cur.className = 'preview-wrap';
+      var im = document.createElement('img');
+      im.className = 'preview-img'; im.alt = 'Current cover'; im.src = editGig.cover_image;
+      cur.appendChild(im);
+      grid.appendChild(cur);
+      var note = document.createElement('p');
+      note.style.cssText = 'grid-column:1/-1;font-size:.76rem;color:var(--muted);margin-top:4px;';
+      note.textContent = 'This is your current cover image. Upload a new image to replace it.';
+      grid.appendChild(note);
+      return;
+    }
+    imageFiles.forEach(function(file, i) {
+      var url  = URL.createObjectURL(file);
+      var wrap = document.createElement('div');
+      wrap.className = 'preview-wrap';
+      wrap.innerHTML = '<img src="' + url + '" class="preview-img" alt="Preview">' +
+        '<button class="preview-del" onclick="removeImage(' + i + ')">×</button>';
+      grid.appendChild(wrap);
+    });
+  }
+
+  function removeImage(i) {
+    imageFiles.splice(i, 1);
+    renderPreviews();
+  }
+
+  /* ── Publish ── */
+  async function publishGig() {
+    if (!validateStep(4)) return;
+    if (!supa) { showAlert('Still loading, try again.'); return; }
+
+    var btn = document.getElementById('publish-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>' + (editGig ? 'Saving…' : 'Publishing…');
+
+    /* collect all data */
+    var { data: { user } } = await supa.auth.getUser();
+    if (!user) { location.href = 'auth.html'; return; }
+
+    /* collect requirements */
+    var reqs = [];
+    document.querySelectorAll('#req-list .req-item input').forEach(function(inp) {
+      var v = inp.value.trim();
+      if (v) reqs.push(v);
+    });
+
+    /* upload cover image first (first image in the array) */
+    var coverImageUrl = null;
+    if (imageFiles.length > 0) {
+      btn.innerHTML = '<span class="spin"></span>Uploading image…';
+      var file = imageFiles[0];
+      var ext  = file.name.split('.').pop() || 'jpg';
+      var path = user.id + '/' + Date.now() + '.' + ext;
+      var { data: upData, error: upErr } = await supa.storage
+        .from('gig-images')
+        .upload(path, file, { cacheControl: '3600', upsert: false });
+      if (upErr) {
+        showAlert('Image upload failed: ' + upErr.message);
+        btn.disabled = false;
+        btn.textContent = editGig ? 'Save changes' : 'Publish gig';
+        return;
+      }
+      var { data: urlData } = supa.storage.from('gig-images').getPublicUrl(path);
+      coverImageUrl = urlData.publicUrl;
+      btn.innerHTML = '<span class="spin"></span>Publishing…';
+    }
+
+    var gigRecord = {
+      seller_id:    user.id,
+      seller_name:  user.user_metadata.full_name || 'Seller',
+      title:        document.getElementById('gig-title').value.trim(),
+      category:     document.getElementById('gig-cat').value,
+      subcategory:  document.getElementById('gig-subcat').value,
+      short_desc:   document.getElementById('gig-desc').value.trim(),
+      full_desc:    document.getElementById('gig-full-desc').value.trim(),
+      tags:         tags,
+      requirements: reqs,
+      status:       'active',
+      cover_image:  coverImageUrl,
+      basic_name:     document.getElementById('b-name').value.trim() || 'Basic',
+      basic_price:    parseFloat(document.getElementById('b-price').value) || 0,
+      basic_includes: document.getElementById('b-include').value.trim(),
+      basic_days:     parseInt(document.getElementById('b-days').value),
+      basic_revs:     document.getElementById('b-rev').value,
+      std_name:       document.getElementById('s-name').value.trim() || 'Standard',
+      std_price:      parseFloat(document.getElementById('s-price').value) || 0,
+      std_includes:   document.getElementById('s-include').value.trim(),
+      std_days:       parseInt(document.getElementById('s-days').value),
+      std_revs:       document.getElementById('s-rev').value,
+      prem_name:      document.getElementById('p-name').value.trim() || 'Premium',
+      prem_price:     parseFloat(document.getElementById('p-price').value) || 0,
+      prem_includes:  document.getElementById('p-include').value.trim(),
+      prem_days:      parseInt(document.getElementById('p-days').value),
+      prem_revs:      document.getElementById('p-rev').value,
+    };
+
+    /* save to Supabase — gigs table */
+    var data, error;
+    if (editGig) {
+      delete gigRecord.seller_id;
+      delete gigRecord.status;                       // keep active / paused as it was
+      if (!coverImageUrl) gigRecord.cover_image = editGig.cover_image || null;
+      var upd = await supa.from('gigs').update(gigRecord)
+        .eq('id', editGig.id).eq('seller_id', user.id).select().single();
+      data = upd.data; error = upd.error;
+    } else {
+      var ins = await supa.from('gigs').insert([gigRecord]).select().single();
+      data = ins.data; error = ins.error;
+    }
+
+    btn.disabled = false;
+    btn.textContent = editGig ? 'Save changes' : 'Publish gig';
+
+    if (error) {
+      if (error.code === '42P01') {
+        showSuccess();
+      } else {
+        showAlert((editGig ? 'Could not save: ' : 'Could not publish: ') + error.message);
+      }
+      return;
+    }
+
+    showSuccess();
+  }
+
+  async function showSuccess() {
+    /* hide all step cards */
+    for (var i = 1; i <= totalSteps; i++) {
+      document.getElementById('step' + i).classList.remove('active');
+    }
+    document.getElementById('steps-bar').style.display = 'none';
+    document.getElementById('alert').className = 'alert';
+    // New gigs only reach buyers once the seller is verified
+    if (!editGig) {
+      var cu = (await supa.auth.getUser()).data.user;
+      var { data: vp } = cu ? await supa.from('profiles').select('verified').eq('id', cu.id).maybeSingle() : { data: null };
+      if (!(vp && vp.verified)) {
+        document.querySelector('#success-screen .success-icon').textContent = '⏳';
+        document.querySelector('#success-screen h2').textContent = 'Gig saved!';
+        document.querySelector('#success-screen p').textContent = 'NEXORA reviews every seller before their gigs go live. Your gig will be visible to buyers as soon as your profile is verified. Make sure your profile has a clear photo, headline and bio.';
+      }
+    }
+    document.getElementById('success-screen').classList.add('show');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

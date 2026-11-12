@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Gig</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --orange: #f59e0b;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 90px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      color: var(--charcoal); flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: .9rem; font-weight: 600; color: var(--charcoal);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+    }
+    .share-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      color: var(--muted); flex-shrink: 0;
+    }
+
+    /* GIG HERO */
+    .gig-hero {
+      width: 100%; aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; background: var(--purple-bg);
+    }
+
+    /* CONTENT */
+    .content { padding: 16px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* SELLER ROW */
+    .seller-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px;
+      background: var(--white); border-radius: 12px; border: 1px solid var(--border);
+    }
+    .seller-av {
+      width: 42px; height: 42px; border-radius: 50%;
+      font-size: .9rem; font-weight: 700; color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .seller-info { flex: 1; min-width: 0; }
+    .seller-name { font-weight: 700; font-size: .92rem; color: var(--charcoal); }
+    .seller-tag { font-size: .78rem; color: var(--muted); margin-top: 1px; }
+    .verified-chip {
+      background: var(--green-bg); color: var(--green);
+      font-size: .7rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; flex-shrink: 0;
+    }
+
+    /* GIG TITLE & META */
+    .gig-title-block {}
+    .gig-title-block h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem; font-weight: 700; line-height: 1.35;
+      color: var(--charcoal); margin-bottom: 8px;
+    }
+    .gig-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip {
+      padding: 4px 10px; border-radius: 20px;
+      font-size: .75rem; font-weight: 600;
+      background: var(--off-white); border: 1px solid var(--border); color: var(--slate);
+    }
+
+    /* SECTION CARD */
+    .section-card {
+      background: var(--white); border-radius: 12px; border: 1px solid var(--border);
+      padding: 16px;
+    }
+    .section-label {
+      font-size: .78rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px;
+    }
+    .section-card p {
+      font-size: .9rem; color: var(--slate); line-height: 1.6;
+    }
+
+    /* REQUIREMENTS */
+    .req-list { display: flex; flex-direction: column; gap: 8px; }
+    .req-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: .88rem; color: var(--slate); line-height: 1.4;
+    }
+    .req-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--cyan);
+      flex-shrink: 0; margin-top: 6px;
+    }
+
+    /* PRICING TABS */
+    .pricing-tabs { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); }
+    .ptab {
+      flex: 1; padding: 10px 6px; text-align: center;
+      font-size: .8rem; font-weight: 600; color: var(--muted);
+      background: var(--off-white); border: none;
+      transition: all .15s; cursor: pointer;
+    }
+    .ptab.active { background: var(--charcoal); color: var(--white); }
+
+    .pricing-panel { margin-top: 14px; display: none; }
+    .pricing-panel.visible { display: block; }
+
+    .tier-name {
+      font-size: 1rem; font-weight: 700; color: var(--charcoal); margin-bottom: 4px;
+    }
+    .tier-price {
+      font-size: 1.6rem; font-weight: 800; color: var(--cyan);
+      font-family: 'Space Grotesk', sans-serif; margin-bottom: 10px;
+    }
+    .tier-price span { font-size: .9rem; font-weight: 500; color: var(--muted); }
+    .tier-includes {
+      font-size: .88rem; color: var(--slate); line-height: 1.6; margin-bottom: 12px;
+    }
+    .tier-meta { display: flex; gap: 16px; }
+    .tier-meta-item { display: flex; align-items: center; gap: 5px; font-size: .8rem; color: var(--muted); }
+    .tier-meta-item svg { color: var(--cyan); }
+
+    /* ORDER BUTTON */
+    .order-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 12px 16px; z-index: 100;
+      display: flex; gap: 10px; align-items: center;
+    }
+    .order-price-preview {
+      display: flex; flex-direction: column; flex-shrink: 0;
+    }
+    .order-price-label { font-size: .7rem; color: var(--muted); }
+    .order-price-val {
+      font-size: 1.1rem; font-weight: 800; color: var(--charcoal);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .order-btn {
+      flex: 1; background: var(--cyan); color: var(--white);
+      border-radius: 10px; padding: 14px 16px;
+      font-weight: 700; font-size: .95rem; text-align: center;
+      border: none; cursor: pointer; transition: background .15s;
+    }
+    .order-btn:active { background: var(--cyan-dark); }
+    .order-btn:disabled {
+      background: var(--border); color: var(--muted); cursor: not-allowed;
+    }
+
+    /* LOADING / ERROR */
+    .page-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 60vh; gap: 12px;
+      color: var(--muted); font-size: .9rem;
+    }
+    .spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--cyan); border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-state {
+      text-align: center; padding: 48px 24px;
+    }
+    .error-state .icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .error-state h3 { font-weight: 700; margin-bottom: 6px; }
+    .error-state p { color: var(--muted); font-size: .88rem; margin-bottom: 16px; }
+    .error-state button {
+      background: var(--cyan); color: white; padding: 10px 22px;
+      border-radius: 8px; font-weight: 600; font-size: .9rem;
+    }
+
+    /* TRUST BADGES */
+    .trust-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .78rem; color: var(--muted);
+    }
+    .trust-item svg { color: var(--green); flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <button class="back-btn" onclick="if (history.length > 1) history.back(); else location.href = 'browse.html';" aria-label="Back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="topbar-title" id="topbar-title">Loading gig…</div>
+    <button class="share-btn" onclick="shareGig()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT (filled by JS) -->
+  <div id="page-body">
+    <div class="page-loading">
+      <div class="spinner"></div>
+      <span>Loading gig…</span>
+    </div>
+  </div>
+
+  <!-- ORDER BAR (filled by JS) -->
+  <div class="order-bar" id="order-bar" style="display:none;">
+    <div class="order-price-preview">
+      <span class="order-price-label">Starting from</span>
+      <span class="order-price-val" id="order-price">—</span>
+    </div>
+    <button class="order-btn" id="order-btn" onclick="placeOrder()">Continue to Order</button>
+  </div>
+
+<script>
+  var supa;
+  var gigData = null;
+  var currentTier = 'basic';
+  var gigId = new URLSearchParams(location.search).get('id');
+
+  var categoryColors = {
+    'design': '#8b5cf6', 'development': '#0ea5e9',
+    'writing': '#f59e0b', 'video': '#ef4444',
+    'marketing': '#10b981', 'music': '#ec4899',
+    'photography': '#f97316', 'business': '#6366f1'
+  };
+  var categoryEmoji = {
+    'design': '🎨', 'development': '💻',
+    'writing': '✍️', 'video': '🎬',
+    'marketing': '📣', 'music': '🎵',
+    'photography': '📷', 'business': '📊'
+  };
+  var categoryBg = {
+    'design': '#f5f3ff', 'development': '#f0f9ff',
+    'writing': '#fffbeb', 'video': '#fff1f2',
+    'marketing': '#f0fdf4', 'music': '#fdf2f8',
+    'photography': '#fff7ed', 'business': '#eef2ff'
+  };
+
+  var baseKeys = ['design','development','writing','video','marketing','music','photography','business'];
+  function getCatKey(cat) {
+    if (!cat) return '';
+    var lower = cat.toLowerCase();
+    if (categoryColors[lower]) return lower;
+    for (var i = 0; i < baseKeys.length; i++) {
+      if (lower.indexOf(baseKeys[i]) !== -1) return baseKeys[i];
+    }
+    return lower;
+  }
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function sellerInitials(name) {
+    if (!name) return '?';
+    var p = name.trim().split(' ');
+    return p.length >= 2 ? (p[0][0]+p[p.length-1][0]).toUpperCase() : name.slice(0,2).toUpperCase();
+  }
+
+  // Load Supabase
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload = function() {
+    supa = window.supabase.createClient(
+      'https://tzzhbzaxoodxbcezcynw.supabase.co',
+      'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX'
+    );
+    init();
+  };
+  document.head.appendChild(s);
+
+  async function init() {
+    // Auth check
+    var { data: { session } } = await supa.auth.getSession();
+    viewerSession = session;   // null for visitors: they can view, but must log in to order or message
+
+    if (!gigId) { showError('No gig specified.', true); return; }
+
+    // Load gig
+    var { data: gig, error } = await supa
+      .from('gigs')
+      .select('*')
+      .eq('id', gigId)
+      .eq('status', 'active')
+      .single();
+
+    if (error || !gig) {
+      showError('This gig could not be found. It may have been removed.', true);
+      return;
+    }
+
+    gigData = gig;
+    viewerId = session ? session.user.id : null;
+
+    // Seller's public profile (photo + verification status)
+    var { data: sp } = await supa.from('profiles')
+      .select('verified, avatar_url')
+      .eq('id', gig.seller_id)
+      .maybeSingle();
+    sellerProfile = sp || {};
+
+    renderGig(gig);
+  }
+
+  var sellerProfile = {};
+  var viewerId = null;
+  var viewerSession = null;
+
+  var CAT_LABELS = {
+    'programming': 'Programming & Tech', 'graphic-design': 'Graphics & Design', 'digital-marketing': 'Digital Marketing',
+    'content-writing': 'Writing & Translation', 'video-animation': 'Video & Animation', 'ai-services': 'AI Services',
+    'music-audio': 'Music & Audio', 'business': 'Business', 'consulting': 'Consulting'
+  };
+  function catLabel(c) { return CAT_LABELS[String(c || '').toLowerCase()] || (c || ''); }
+
+  function renderGig(gig) {
+    var catKey = getCatKey(gig.category);
+    var color = categoryColors[catKey] || '#64748b';
+    var emoji = categoryEmoji[catKey] || '💼';
+    var bg = categoryBg[catKey] || '#f8fafc';
+    var initials = sellerInitials(gig.seller_name);
+
+    document.getElementById('topbar-title').textContent = gig.title || 'Gig Detail';
+
+    // Tags array
+    var tags = Array.isArray(gig.tags) ? gig.tags : [];
+    var chipsHtml = '';
+    if (gig.category) chipsHtml += '<span class="chip">' + escHtml(catLabel(gig.category)) + '</span>';
+    if (gig.subcategory) chipsHtml += '<span class="chip">' + escHtml(gig.subcategory) + '</span>';
+    tags.slice(0,3).forEach(function(t) {
+      chipsHtml += '<span class="chip">' + escHtml(t) + '</span>';
+    });
+
+    // Requirements
+    var reqs = Array.isArray(gig.requirements) ? gig.requirements : [];
+    var reqHtml = reqs.length
+      ? reqs.map(function(r) {
+          return '<div class="req-item"><div class="req-dot"></div><span>' + escHtml(r) + '</span></div>';
+        }).join('')
+      : '<p style="color:var(--muted);font-size:.88rem;">No specific requirements — just place your order and the seller will get started.</p>';
+
+    // Pricing panels
+    var hasPrem = gig.prem_price && Number(gig.prem_price) > 0;
+    var hasStd  = gig.std_price  && Number(gig.std_price)  > 0;
+
+    function tierPanel(prefix, label) {
+      var price    = gig[prefix + '_price'];
+      var name     = gig[prefix + '_name']     || label;
+      var includes = gig[prefix + '_includes'] || '';
+      var days     = gig[prefix + '_days']     || '';
+      var revs     = gig[prefix + '_revs'];
+
+      if (!price || Number(price) === 0) return '';
+      return '<div class="tier-name">' + escHtml(name) + '</div>' +
+        '<div class="tier-price">$' + Number(price).toLocaleString() + ' <span>/ gig</span></div>' +
+        (includes ? '<div class="tier-includes">' + escHtml(includes) + '</div>' : '') +
+        '<div class="tier-meta">' +
+          (days ? '<div class="tier-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + escHtml(String(days)) + ' day delivery</div>' : '') +
+          (revs !== null && revs !== undefined && revs !== '' ? '<div class="tier-meta-item"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>' + escHtml(String(revs)) + ' revision' + (Number(revs) !== 1 ? 's' : '') + '</div>' : '') +
+        '</div>';
+    }
+
+    var tabHtml = '<div class="pricing-tabs">';
+    tabHtml += '<button class="ptab active" data-tier="basic" onclick="switchTier(\'basic\')">Basic</button>';
+    if (hasStd)  tabHtml += '<button class="ptab" data-tier="std"   onclick="switchTier(\'std\')">Standard</button>';
+    if (hasPrem) tabHtml += '<button class="ptab" data-tier="prem"  onclick="switchTier(\'prem\')">Premium</button>';
+    tabHtml += '</div>';
+
+    var panelsHtml =
+      '<div class="pricing-panel visible" id="panel-basic">'  + tierPanel('basic', 'Basic')    + '</div>' +
+      '<div class="pricing-panel" id="panel-std">'   + tierPanel('std',   'Standard') + '</div>' +
+      '<div class="pricing-panel" id="panel-prem">'  + tierPanel('prem',  'Premium')  + '</div>';
+
+    var html =
+      (gig.cover_image
+        ? '<div class="gig-hero" style="background:' + bg + ';padding:0;overflow:hidden;"><img src="' + escHtml(gig.cover_image) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+        : '<div class="gig-hero" style="background:' + bg + ';">' + emoji + '</div>') +
+      '<div class="content">' +
+
+        // Seller row
+        '<a class="seller-row" href="seller-profile.html?id=' + encodeURIComponent(gig.seller_id) + '" style="text-decoration:none;color:inherit;" aria-label="View seller profile">' +
+          (sellerProfile.avatar_url && /^https:\/\//.test(sellerProfile.avatar_url)
+            ? '<div class="seller-av" style="background:' + color + ';overflow:hidden;"><img src="' + escHtml(sellerProfile.avatar_url) + '" alt="" style="width:100%;height:100%;object-fit:cover;"></div>'
+            : '<div class="seller-av" style="background:' + color + ';">' + escHtml(initials) + '</div>') +
+          '<div class="seller-info">' +
+            '<div class="seller-name">' + escHtml(gig.seller_name || 'Seller') + '</div>' +
+            '<div class="seller-tag">' + escHtml(catLabel(gig.category)) + '</div>' +
+          '</div>' +
+          (sellerProfile.verified ? '<div class="verified-chip">✓ Verified</div>' : '') +
+          '<span style="margin-left:auto;color:var(--muted);font-size:1.1rem;padding-left:6px;" aria-hidden="true">›</span>' +
+        '</a>' +
+        (viewerId === gig.seller_id ? '<a href="create-gig.html?edit=' + encodeURIComponent(gig.id) + '" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:-4px 0 14px;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--charcoal);font-weight:700;font-size:.86rem;text-decoration:none;">✏️ Edit this gig</a>' : '<a href="messages.html?gig=' + encodeURIComponent(gig.id) + '" style="display:flex;align-items:center;justify-content:center;gap:8px;margin:-4px 0 14px;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--charcoal);font-weight:700;font-size:.86rem;text-decoration:none;">💬 Message seller</a>') +
+
+        // Title & chips
+        '<div class="gig-title-block">' +
+          '<h1>' + escHtml(gig.title || '') + '</h1>' +
+          (chipsHtml ? '<div class="gig-chips">' + chipsHtml + '</div>' : '') +
+        '</div>' +
+
+        // About
+        '<div class="section-card">' +
+          '<div class="section-label">About this gig</div>' +
+          '<p>' + escHtml(gig.full_desc || gig.short_desc || 'No description provided.').replace(/\n/g, '<br>') + '</p>' +
+        '</div>' +
+
+        // Pricing
+        '<div class="section-card">' +
+          '<div class="section-label">Pricing</div>' +
+          tabHtml + panelsHtml +
+        '</div>' +
+
+        // Requirements
+        '<div class="section-card">' +
+          '<div class="section-label">What the seller needs from you</div>' +
+          '<div class="req-list">' + reqHtml + '</div>' +
+        '</div>' +
+
+        // Trust
+        '<div class="section-card">' +
+          '<div class="section-label">Buyer protection</div>' +
+          '<div class="trust-row">' +
+            '<div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Escrow payment — funds held until delivery</div>' +
+            '<div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Full refund if delivery is not made</div>' +
+            '<div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Direct messaging with your seller</div>' +
+          '</div>' +
+        '</div>' +
+
+      '</div>';
+
+    document.getElementById('page-body').innerHTML = html;
+
+    // Show order bar
+    updateOrderBar();
+    document.getElementById('order-bar').style.display = 'flex';
+    if (!viewerSession) {
+      var ob = document.getElementById('order-btn');
+      ob.textContent = 'Log in to Order';
+      ob.setAttribute('aria-label', 'Log in or create a free account to order');
+    }
+  }
+
+  function switchTier(tier) {
+    currentTier = tier;
+    document.querySelectorAll('.ptab').forEach(function(t) {
+      t.classList.toggle('active', t.dataset.tier === tier);
+    });
+    document.querySelectorAll('.pricing-panel').forEach(function(p) {
+      p.classList.remove('visible');
+    });
+    var panel = document.getElementById('panel-' + tier);
+    if (panel) panel.classList.add('visible');
+    updateOrderBar();
+  }
+
+  function updateOrderBar() {
+    if (!gigData) return;
+    var prefix = currentTier === 'std' ? 'std' : currentTier === 'prem' ? 'prem' : 'basic';
+    var price = gigData[prefix + '_price'];
+    document.getElementById('order-price').textContent = price ? '$' + Number(price).toLocaleString() : '—';
+  }
+
+  function placeOrder() {
+    if (!gigData) return;
+    var prefix = currentTier === 'std' ? 'std' : currentTier === 'prem' ? 'prem' : 'basic';
+    var price = gigData[prefix + '_price'];
+    var tierName = gigData[prefix + '_name'] || (currentTier === 'basic' ? 'Basic' : currentTier === 'std' ? 'Standard' : 'Premium');
+    // Store order intent and go to order page (coming next)
+    sessionStorage.setItem('nexora_order', JSON.stringify({
+      gigId: gigData.id,
+      gig_title: gigData.title,
+      seller_id: gigData.seller_id,
+      seller_name: gigData.seller_name,
+      tier: currentTier,
+      tier_name: tierName,
+      price: price,
+      days: gigData[prefix + '_days'],
+      revs: gigData[prefix + '_revs']
+    }));
+    if (!viewerSession) {
+      // Order details are kept, so the person lands on checkout right after logging in
+      window.location.href = 'auth.html?mode=login&next=order.html';
+      return;
+    }
+    window.location.href = 'order.html';
+  }
+
+  function shareGig() {
+    if (navigator.share) {
+      navigator.share({ title: gigData ? gigData.title : 'Check out this gig on NEXORA', url: location.href });
+    } else {
+      var dummy = document.createElement('input');
+      document.body.appendChild(dummy);
+      dummy.value = location.href;
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+      alert('Link copied!');
+    }
+  }
+
+  function showError(msg, showBack) {
+    document.getElementById('page-body').innerHTML =
+      '<div class="error-state">' +
+        '<div class="icon">😕</div>' +
+        '<h3>Gig not found</h3>' +
+        '<p>' + escHtml(msg) + '</p>' +
+        (showBack ? '<button onclick="history.back()">Go back</button>' : '') +
+      '</div>';
+    document.getElementById('order-bar').style.display = 'none';
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

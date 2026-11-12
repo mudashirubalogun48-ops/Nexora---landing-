@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Global Talent. Verified.</title>
+  <meta name="description" content="Hire verified freelancers worldwide. Every payment protected by escrow. Every seller reviewed before going live. Sellers paid within 3 business days.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --cyan:    #0ea5e9;
+      --cyan-dark: #0284c7;
+      --indigo:  #6366f1;
+      --coral:   #ff6b6b;
+      --charcoal:#1e293b;
+      --slate:   #334155;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+      --off-white:#f8fafc;
+      --white:   #ffffff;
+
+      --font-head: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+
+      --shadow-card: 0 2px 12px rgba(0,0,0,.08);
+      --shadow-btn:  0 4px 16px rgba(14,165,233,.35);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      font-family: var(--font-body);
+      color: var(--charcoal);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      width: 100%;
+      min-width: 0;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── Utility ── */
+    .container { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 20px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    section, footer, nav { width: 100%; max-width: 100vw; overflow-x: hidden; }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      display: flex; align-items: center;
+      width: 100%; overflow: hidden;
+    }
+    .nav__inner {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 16px;
+      min-width: 0;
+    }
+    .nav__logo {
+      font-family: var(--font-head);
+      font-size: 1.35rem; font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--charcoal);
+      display: flex; align-items: center; gap: 1px;
+    }
+    .nav__logo .logo-nex { color: var(--charcoal); }
+    .nav__logo .logo-ora { color: var(--charcoal); }
+    .nav__logo .logo-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      background: var(--cyan);
+      border-radius: 50%;
+      margin-left: 2px;
+      margin-bottom: 2px;
+      flex-shrink: 0;
+    }
+    .nav__links {
+      display: none;
+      list-style: none; gap: 32px;
+      font-size: .9rem; font-weight: 500;
+    }
+    .nav__links a { color: var(--slate); }
+    .nav__links a:hover { color: var(--cyan); }
+    .nav__cta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .nav__logo { flex-shrink: 0; }
+
+    /* hamburger button */
+    .nav__burger {
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 5px; width: 36px; height: 36px;
+      cursor: pointer; background: none; border: none;
+      padding: 4px; border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+    .nav__burger span {
+      display: block; height: 2px; width: 22px;
+      background: var(--charcoal);
+      border-radius: 2px;
+      transition: transform .25s, opacity .2s;
+    }
+    .nav__burger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav__burger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .nav__burger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* mobile drawer */
+    .nav__drawer {
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: var(--white);
+      z-index: 99;
+      overflow-y: auto;
+      transform: translateX(-100%);
+      transition: transform .28s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .nav__drawer.open { transform: translateX(0); }
+
+    /* drawer panels */
+    .drawer__panel {
+      flex: 0 0 100%; width: 100%;
+      display: flex; flex-direction: column;
+    }
+    .drawer__main { }
+    .drawer__currency { display: none; }
+    .nav__drawer.show-currency .drawer__main { display: none; }
+    .nav__drawer.show-currency .drawer__currency { display: flex; flex-direction: column; }
+
+    /* drawer row links */
+    .drawer__row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 1rem; font-weight: 500;
+      color: var(--charcoal);
+      cursor: pointer; background: none; border-top: none;
+      width: 100%; text-align: left; font-family: var(--font-body);
+      text-decoration: none;
+    }
+    .drawer__row:last-child { border-bottom: none; }
+    .drawer__row svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
+    .drawer__row--meta { color: var(--slate); font-size: .95rem; }
+    .drawer__divider {
+      height: 6px;
+      background: var(--off-white);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* currency sub-panel header */
+    .drawer__back {
+      display: flex; align-items: center; gap: 10px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-head);
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--charcoal);
+      cursor: pointer; background: none; border-top: none;
+      width: 100%; text-align: left;
+    }
+    .drawer__back svg { width: 18px; height: 18px; color: var(--muted); }
+    .currency__row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: .95rem; color: var(--charcoal);
+      cursor: pointer; background: none; border-top: none;
+      width: 100%; text-align: left; font-family: var(--font-body);
+    }
+    .currency__row:hover { background: var(--off-white); }
+    .currency__row.active { font-weight: 600; color: var(--cyan); }
+    .currency__check { color: var(--cyan); font-size: 1rem; }
+
+    /* drawer CTA footer */
+    .drawer__cta {
+      margin-top: auto;
+      padding: 20px;
+      display: flex; gap: 12px;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      position: sticky; bottom: 0;
+    }
+    .drawer__cta a {
+      flex: 1; text-align: center;
+      padding: 13px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-head);
+      font-size: .95rem; font-weight: 600;
+    }
+    .drawer__cta .btn-drawer-join {
+      background: var(--charcoal); color: var(--white);
+    }
+    .drawer__cta .btn-drawer-sign {
+      border: 1.5px solid var(--border); color: var(--charcoal);
+    }
+    .btn-ghost {
+      font-size: .875rem; font-weight: 500;
+      color: var(--charcoal);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      transition: background .18s;
+    }
+    .btn-ghost:hover { background: var(--off-white); }
+    .btn-primary {
+      font-size: .875rem; font-weight: 600;
+      color: var(--white);
+      background: var(--cyan);
+      padding: 9px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-btn);
+      transition: background .18s, transform .12s;
+    }
+    .btn-primary:hover { background: var(--cyan-dark); transform: translateY(-1px); }
+
+    /* ─────────────────────────────────────────
+       HERO  — full-bleed cinematic dark
+    ───────────────────────────────────────── */
+    .hero {
+      padding-top: 64px;
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      width: 100%;
+      background: #0a0f1e;
+    }
+    /* layered gradient sky */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,.28) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 50% at 85% 80%,  rgba(99,102,241,.22) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 90%,  rgba(14,165,233,.12) 0%, transparent 55%),
+        linear-gradient(170deg, #0a0f1e 0%, #0d1a2e 50%, #080d1a 100%);
+      pointer-events: none;
+    }
+    /* dot-grid texture */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(148,163,184,.12) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+    .hero__content {
+      position: relative; z-index: 1;
+      padding: 80px 20px 72px;
+      max-width: 780px; margin: 0 auto; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center;
+    }
+    .hero__badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(14,165,233,.1);
+      border: 1px solid rgba(14,165,233,.25);
+      color: #7dd3fc;
+      font-size: .75rem; font-weight: 600;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 100px;
+      margin-bottom: 28px;
+    }
+    .hero__badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--cyan);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(1.4); }
+    }
+    .hero__title {
+      font-family: var(--font-head);
+      font-size: clamp(2.4rem, 8vw, 4.2rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      margin-bottom: 20px;
+    }
+    .hero__title .accent {
+      background: linear-gradient(90deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero__sub {
+      font-size: clamp(.95rem, 2.5vw, 1.1rem);
+      color: #94a3b8;
+      max-width: 480px;
+      margin-bottom: 36px;
+      line-height: 1.75;
+    }
+
+    /* hero inline search */
+    .hero__search {
+      width: 100%; max-width: 540px;
+      display: flex;
+      background: var(--white);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+      margin-bottom: 32px;
+    }
+    .hero__search input {
+      flex: 1; border: none; outline: none;
+      padding: 16px 18px;
+      font-family: var(--font-body);
+      font-size: .95rem; color: var(--charcoal);
+      background: transparent;
+      min-width: 0;
+    }
+    .hero__search input::placeholder { color: #94a3b8; }
+    .hero__search button {
+      background: var(--cyan);
+      color: var(--white);
+      font-family: var(--font-head);
+      font-size: .9rem; font-weight: 700;
+      padding: 14px 22px;
+      border: none; cursor: pointer;
+      white-space: nowrap;
+      transition: background .18s;
+      flex-shrink: 0;
+    }
+    .hero__search button:hover { background: var(--cyan-dark); }
+
+    /* trust pills row */
+    .hero__trust {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center;
+      margin-bottom: 56px;
+    }
+    .trust-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.09);
+      color: #94a3b8;
+      font-size: .77rem; font-weight: 500;
+      padding: 6px 13px; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .trust-pill svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--cyan); }
+
+    /* stats strip */
+    .hero__stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      width: 100%; max-width: 540px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .hero__stat {
+      background: rgba(255,255,255,.03);
+      padding: 18px 12px;
+      text-align: center;
+    }
+    .hero__stat-num {
+      font-family: var(--font-head);
+      font-size: 1.35rem; font-weight: 700;
+      color: var(--white);
+      line-height: 1; margin-bottom: 4px;
+    }
+    .hero__stat-label {
+      font-size: .72rem; color: #64748b; font-weight: 500;
+    }
+
+    /* Btn reuse */
+    .btn-hero-primary {
+      font-family: var(--font-head);
+      font-size: 1rem; font-weight: 600;
+      color: var(--white); background: var(--cyan);
+      padding: 15px 28px; border-radius: var(--radius-sm);
+      box-shadow: 0 6px 24px rgba(14,165,233,.4);
+      transition: background .18s, transform .12s, box-shadow .18s;
+      text-align: center; display: block; width: 100%;
+    }
+    .btn-hero-primary:hover { background: var(--cyan-dark); transform: translateY(-2px); }
+    .btn-hero-secondary {
+      font-family: var(--font-head); font-size: 1rem; font-weight: 500;
+      color: #e2e8f0; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 15px 28px; border-radius: var(--radius-sm);
+      transition: background .18s; text-align: center;
+      display: block; width: 100%;
+    }
+    .btn-hero-secondary:hover { background: rgba(255,255,255,.14); }
+
+    /* ─────────────────────────────────────────
+       SEARCH BAR
+    ───────────────────────────────────────── */
+    .search-section {
+      background: var(--off-white);
+      padding: 48px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-section__label {
+      text-align: center;
+      font-size: .82rem; font-weight: 600;
+      color: var(--muted); letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .search-bar {
+      display: flex;
+      max-width: 620px; margin: 0 auto;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .search-bar:focus-within {
+      border-color: var(--cyan);
+      box-shadow: 0 2px 20px rgba(14,165,233,.15);
+    }
+    .search-bar input {
+      flex: 1;
+      border: none; outline: none;
+      padding: 14px 18px;
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--charcoal);
+      background: transparent;
+    }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-bar button {
+      background: var(--cyan);
+      color: var(--white);
+      font-family: var(--font-head);
+      font-size: .9rem; font-weight: 600;
+      padding: 12px 22px;
+      transition: background .18s;
+    }
+    .search-bar button:hover { background: var(--cyan-dark); }
+
+    /* ─────────────────────────────────────────
+       SECTION SHARED
+    ───────────────────────────────────────── */
+    .section-eyebrow {
+      font-size: .75rem; font-weight: 600;
+      color: var(--cyan); letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(1.45rem, 4vw, 2.2rem);
+      font-weight: 700; letter-spacing: -0.025em;
+      color: var(--charcoal);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+    .section-sub {
+      font-size: .9rem; color: var(--muted);
+      max-width: 480px;
+      margin-bottom: 36px;
+      line-height: 1.65;
+    }
+
+    /* ─────────────────────────────────────────
+       CATEGORIES  — Fiverr-style 3-col icon grid
+    ───────────────────────────────────────── */
+    .categories {
+      padding: 56px 0 64px;
+      background: var(--white);
+    }
+    .categories .container { padding: 0 20px; }
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    /* hide "extra" (row 3) on mobile until toggled */
+    @media (max-width: 1023px) {
+      .cat-card--extra { display: none; }
+      .cat-grid.expanded .cat-card--extra { display: flex; }
+    }
+    /* always show on desktop — toggle button also hidden there */
+    @media (min-width: 1024px) {
+      .cat-toggle-wrap { display: none; }
+    }
+
+    /* View all / less toggle button */
+    .cat-toggle-wrap {
+      display: flex; justify-content: center;
+      margin-top: 20px;
+    }
+    .cat-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-body); font-size: .92rem; font-weight: 500;
+      color: var(--charcoal);
+      background: none; border: none; padding: 8px 0;
+      cursor: pointer;
+      border-bottom: 1.5px solid var(--charcoal);
+      transition: color .18s;
+    }
+    .cat-toggle:hover { color: var(--cyan); border-color: var(--cyan); }
+    .cat-toggle-arrow {
+      width: 16px; height: 16px;
+      transition: transform .25s;
+    }
+    .cat-toggle[aria-expanded="true"] .cat-toggle-arrow { transform: rotate(180deg); }
+
+    .cat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px 10px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s, box-shadow .2s, transform .18s;
+    }
+    .cat-card:hover, .cat-card:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 8px 28px rgba(14,165,233,.13);
+      transform: translateY(-4px);
+    }
+    .cat-icon {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+      background: var(--white);
+      transition: border-color .2s;
+    }
+    .cat-icon svg {
+      width: 32px; height: 32px;
+      stroke: var(--charcoal);
+      transition: stroke .2s;
+    }
+    .cat-card:hover .cat-icon,
+    .cat-card:focus .cat-icon { border-color: var(--cyan); }
+    .cat-card:hover .cat-icon svg,
+    .cat-card:focus .cat-icon svg { stroke: var(--cyan); }
+    .cat-name {
+      font-family: var(--font-head);
+      font-size: .82rem; font-weight: 600;
+      color: var(--charcoal);
+      line-height: 1.35;
+    }
+
+    /* ─────────────────────────────────────────
+       POPULAR SERVICES  — editorial scroll strip
+    ───────────────────────────────────────── */
+    .popular {
+      padding: 56px 0;
+      background: var(--off-white);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .popular__header {
+      padding: 0 20px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .popular__header h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.3rem, 4vw, 1.9rem);
+      font-weight: 700; letter-spacing: -0.025em;
+      color: var(--charcoal);
+    }
+    .popular__see-all {
+      font-size: .84rem; font-weight: 600;
+      color: var(--cyan);
+      white-space: nowrap;
+      padding-bottom: 2px;
+      border-bottom: 1.5px solid transparent;
+      transition: border-color .18s;
+    }
+    .popular__see-all:hover { border-color: var(--cyan); }
+    .popular__scroll {
+      display: flex; gap: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 4px 20px 16px;
+    }
+    .popular__scroll::-webkit-scrollbar { display: none; }
+    .service-card {
+      flex: 0 0 200px;
+      min-width: 200px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: box-shadow .2s, transform .18s;
+      text-decoration: none;
+    }
+    .service-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-3px); }
+    .service-card__img {
+      width: 100%; height: 120px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card__label {
+      position: absolute; top: 10px; left: 10px;
+      font-family: var(--font-head);
+      font-size: .72rem; font-weight: 700;
+      color: var(--white);
+      background: rgba(15,23,42,.7);
+      padding: 3px 8px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .service-card__body {
+      padding: 12px 14px;
+    }
+    .service-card__title {
+      font-family: var(--font-head);
+      font-size: .85rem; font-weight: 600;
+      color: var(--charcoal);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .service-card__from {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .service-card__from strong {
+      color: var(--charcoal);
+      font-weight: 600;
+    }
+
+    /* ─────────────────────────────────────────
+       HOW IT WORKS
+    ───────────────────────────────────────── */
+    .how {
+      background: var(--off-white);
+      padding: 72px 20px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .how__tabs {
+      display: flex; gap: 0;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 40px;
+      max-width: 340px;
+    }
+    .how__tab {
+      flex: 1; padding: 11px 20px;
+      font-family: var(--font-head);
+      font-size: .88rem; font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+      cursor: pointer;
+      transition: background .18s, color .18s;
+    }
+    .how__tab.active {
+      background: var(--cyan);
+      color: var(--white);
+    }
+    .how__panel { display: none; }
+    .how__panel.active { display: block; }
+    .how__steps { display: flex; flex-direction: column; gap: 24px; }
+    .how__step {
+      display: flex; gap: 18px; align-items: flex-start;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--cyan);
+      color: var(--white);
+      font-family: var(--font-head);
+      font-size: .85rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body h3 {
+      font-family: var(--font-head);
+      font-size: 1rem; font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 4px;
+    }
+    .step-body p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─────────────────────────────────────────
+       WHY NEXORA
+    ───────────────────────────────────────── */
+    .why {
+      padding: 72px 20px;
+      background: var(--white);
+    }
+    .why__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .why-card {
+      padding: 28px 24px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .why-card:hover {
+      border-color: var(--cyan);
+      box-shadow: var(--shadow-card);
+    }
+    .why-card__icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    .why-card h3 {
+      font-family: var(--font-head);
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+    }
+    .why-card p { font-size: .88rem; color: var(--muted); line-height: 1.65; }
+
+    /* ─────────────────────────────────────────
+       ESCROW EXPLAINER
+    ───────────────────────────────────────── */
+    .escrow {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 72px 20px;
+    }
+    .escrow .section-title { color: var(--white); }
+    .escrow .section-sub { color: #94a3b8; max-width: 520px; }
+    .escrow__steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+    .escrow__step {
+      display: flex; gap: 18px;
+      position: relative;
+      padding-bottom: 32px;
+    }
+    .escrow__step:last-child { padding-bottom: 0; }
+    .escrow__line {
+      position: absolute;
+      left: 15px; top: 36px;
+      width: 2px;
+      height: calc(100% - 36px);
+      background: linear-gradient(to bottom, rgba(14,165,233,.4), transparent);
+    }
+    .escrow__step:last-child .escrow__line { display: none; }
+    .escrow__num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--cyan);
+      color: var(--cyan);
+      font-family: var(--font-head);
+      font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      background: rgba(14,165,233,.1);
+      z-index: 1;
+    }
+    .escrow__body h3 {
+      font-family: var(--font-head);
+      font-size: .95rem; font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+      margin-top: 4px;
+    }
+    .escrow__body p { font-size: .85rem; color: #64748b; line-height: 1.6; }
+
+    /* ─────────────────────────────────────────
+       SELLER CTA
+    ───────────────────────────────────────── */
+    .seller-cta {
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--indigo) 100%);
+      padding: 64px 20px;
+      text-align: center;
+    }
+    .seller-cta h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.025em;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .seller-cta p {
+      color: rgba(255,255,255,.82);
+      font-size: .95rem;
+      max-width: 420px; margin: 0 auto 32px;
+      line-height: 1.65;
+    }
+    .btn-cta-white {
+      display: inline-block;
+      font-family: var(--font-head);
+      font-size: 1rem; font-weight: 600;
+      color: var(--cyan);
+      background: var(--white);
+      padding: 14px 32px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      transition: transform .12s, box-shadow .18s;
+    }
+    .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.25); }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    .footer {
+      background: #0f172a;
+      padding: 56px 20px 32px;
+      color: #94a3b8;
+    }
+    .footer__top {
+      display: flex; flex-direction: column; gap: 40px;
+      margin-bottom: 48px;
+    }
+    .footer__brand {}
+    .footer__logo {
+      font-family: var(--font-head);
+      font-size: 1.3rem; font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .footer__logo span { color: var(--cyan); }
+    .footer__tagline {
+      font-size: .85rem;
+      line-height: 1.6;
+      max-width: 240px;
+    }
+    .footer__col h4 {
+      font-family: var(--font-head);
+      font-size: .82rem; font-weight: 600;
+      color: var(--white);
+      letter-spacing: .05em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .footer__col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer__col a { font-size: .88rem; color: #64748b; transition: color .15s; }
+    .footer__col a:hover { color: var(--cyan); }
+    .footer__cols { display: flex; flex-wrap: wrap; gap: 32px; }
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding-top: 24px;
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: space-between; align-items: center;
+    }
+    .footer__copy { font-size: .8rem; }
+    .footer__legal { display: flex; gap: 16px; }
+    .footer__legal a { font-size: .8rem; color: #475569; transition: color .15s; }
+    .footer__legal a:hover { color: var(--cyan); }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE — phablet 480px
+    ───────────────────────────────────────── */
+    @media (min-width: 480px) {
+      .hero__actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .btn-hero-primary,
+      .btn-hero-secondary {
+        width: auto;
+        display: inline-block;
+      }
+      .hero__stats {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE — tablet 640px
+    ───────────────────────────────────────── */
+    @media (min-width: 640px) {
+      .why__grid { grid-template-columns: repeat(2, 1fr); }
+      .cat-grid { grid-template-columns: repeat(4, 1fr); }
+      .service-card { flex: 0 0 240px; min-width: 240px; }
+      .service-card__img { height: 140px; }
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE — desktop 1024px
+    ───────────────────────────────────────── */
+    @media (min-width: 1024px) {
+      .nav__links { display: flex; }
+      .nav__burger { display: none; }
+      .nav__drawer { display: none !important; }
+      .cat-grid { grid-template-columns: repeat(8, 1fr); gap: 16px; }
+      .why__grid { grid-template-columns: repeat(4, 1fr); }
+      .escrow__steps { flex-direction: row; gap: 0; }
+      .escrow__step { flex-direction: column; padding-bottom: 0; align-items: center; text-align: center; flex: 1; }
+      .escrow__line {
+        position: absolute;
+        left: 50%; top: 15px;
+        width: calc(100% - 32px); height: 2px;
+        background: linear-gradient(to right, rgba(14,165,233,.4), transparent);
+        transform: translateX(16px);
+      }
+      .escrow__num { margin: 0 auto; }
+      .footer__top { flex-direction: row; }
+      .footer__brand { flex: 0 0 260px; }
+    }
+
+    /* ── Scroll-reveal animation ── */
+    .cat-card, .why-card, .escrow__step, .cta-trust__item {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .4s ease, transform .4s ease, border-color .2s, box-shadow .2s;
+    }
+    .cat-card.revealed, .why-card.revealed,
+    .escrow__step.revealed, .cta-trust__item.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* hover still works after reveal */
+    .cat-card.revealed:hover, .cat-card.revealed:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 8px 28px rgba(14,165,233,.13);
+      transform: translateY(-4px);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-card, .why-card, .escrow__step, .cta-trust__item {
+        opacity: 1; transform: none; transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <button class="nav__burger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer" onclick="toggleDrawer()">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="nav__logo" aria-label="NEXORA home"><span class="logo-nex">NEX</span><span class="logo-ora">ORA</span><span class="logo-dot" aria-hidden="true"></span></a>
+      <ul class="nav__links" role="list">
+        <li><a href="#categories">Find talent</a></li>
+        <li><a href="#how-it-works">How it works</a></li>
+        <li><a href="#fees">Fees</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+      <div class="nav__cta">
+        <a href="auth.html" class="btn-ghost">Log in</a>
+        <a href="auth.html" class="btn-primary">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MOBILE DRAWER ── -->
+  <div class="nav__drawer" id="nav-drawer" role="dialog" aria-label="Navigation menu" aria-modal="true">
+
+    <!-- Main panel -->
+    <div class="drawer__main drawer__panel">
+      <a href="#categories" class="drawer__row" onclick="toggleDrawer()">
+        Browse categories
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/></svg>
+      </a>
+      <a href="#categories" class="drawer__row" onclick="toggleDrawer()">
+        Explore
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/></svg>
+      </a>
+      <a href="#how-it-works" class="drawer__row" onclick="toggleDrawer()">
+        How it works
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/></svg>
+      </a>
+      <div class="drawer__divider"></div>
+      <div class="drawer__cta">
+        <a href="auth.html" class="btn-drawer-join">Join NEXORA</a>
+        <a href="auth.html" class="btn-drawer-sign">Sign in</a>
+      </div>
+    </div>
+
+
+
+  </div>
+
+  <!-- ── HERO ── -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero__content">
+      <div class="hero__badge">
+        <span class="hero__badge-dot"></span>
+        Global Talent. Verified.
+      </div>
+
+      <h1 class="hero__title" id="hero-title">
+        Hire talent that<br>
+        <span class="accent">delivers results.</span>
+      </h1>
+
+      <p class="hero__sub">
+        Every seller verified. Every payment protected by escrow.<br>
+        Find the right freelancer for any project — in minutes.
+      </p>
+
+      <!-- search inside hero -->
+      <form class="hero__search" role="search" onsubmit="handleSearch(event)">
+        <input type="search" name="q" placeholder="Try &quot;logo design&quot; or &quot;React developer&quot;…" aria-label="Search for services">
+        <button type="submit">Search</button>
+      </form>
+
+      <div class="hero__trust" aria-label="Trust indicators">
+        <div class="trust-pill">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          Verified sellers
+        </div>
+        <div class="trust-pill">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          Escrow protection
+        </div>
+        <div class="trust-pill">
+          <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          3-day payouts
+        </div>
+        <div class="trust-pill">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10.5V4a1 1 0 011-1h6.5L17 9.5 10.5 16z" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></svg>
+          Upfront pricing
+        </div>
+      </div>
+
+      <div class="hero__stats" role="list" aria-label="Platform highlights">
+        <div class="hero__stat" role="listitem">
+          <div class="hero__stat-num">10%</div>
+          <div class="hero__stat-label">Seller fee</div>
+        </div>
+        <div class="hero__stat" role="listitem">
+          <div class="hero__stat-num">3 days</div>
+          <div class="hero__stat-label">Seller payout</div>
+        </div>
+        <div class="hero__stat" role="listitem">
+          <div class="hero__stat-num">100%</div>
+          <div class="hero__stat-label">Orders in escrow</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SEARCH (below hero on desktop, hidden on mobile since hero has one) ── -->
+  <section class="search-section" aria-label="Search for services">
+    <p class="search-section__label">What do you need done today?</p>
+    <form class="search-bar" role="search" onsubmit="handleSearch(event)">
+      <input type="search" name="q" placeholder="e.g. logo design, website, video edit…" aria-label="Search for services">
+      <button type="submit">Search</button>
+    </form>
+  </section>
+
+  <!-- ── CATEGORIES ── -->
+  <section class="categories" id="categories" aria-labelledby="categories-title">
+    <div class="container">
+      <p class="section-eyebrow">Browse by category</p>
+      <h2 class="section-title" id="categories-title">Find the right skill, fast</h2>
+      <p class="section-sub">Verified freelancers across every major creative and digital discipline.</p>
+      <div class="cat-grid" id="cat-grid" role="list">
+
+        <!-- Row 1 — always visible -->
+        <a href="browse.html?cat=programming" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 8l-3 3 3 3M17 8l3 3-3 3"/></svg>
+          </div>
+          <div class="cat-name">Programming<br>&amp; Tech</div>
+        </a>
+        <a href="browse.html?cat=graphic-design" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 9h.01M15 9h.01"/><circle cx="12" cy="14" r="2.5"/></svg>
+          </div>
+          <div class="cat-name">Graphics<br>&amp; Design</div>
+        </a>
+        <a href="browse.html?cat=digital-marketing" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+          </div>
+          <div class="cat-name">Digital<br>Marketing</div>
+        </a>
+
+        <!-- Row 2 — always visible -->
+        <a href="browse.html?cat=content-writing" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+          </div>
+          <div class="cat-name">Writing<br>&amp; Translation</div>
+        </a>
+        <a href="browse.html?cat=video-animation" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg>
+          </div>
+          <div class="cat-name">Video<br>&amp; Animation</div>
+        </a>
+        <a href="browse.html?cat=ai-services" class="cat-card" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 114 0v2M16 7V5a2 2 0 114 0v2"/><circle cx="9" cy="13" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div class="cat-name">AI Services</div>
+        </a>
+
+        <!-- Row 3 — hidden on mobile until "View all" -->
+        <a href="browse.html?cat=music-audio" class="cat-card cat-card--extra" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="cat-name">Music<br>&amp; Audio</div>
+        </a>
+        <a href="browse.html?cat=business" class="cat-card cat-card--extra" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div class="cat-name">Business</div>
+        </a>
+        <a href="browse.html?cat=consulting" class="cat-card cat-card--extra" role="listitem">
+          <div class="cat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div class="cat-name">Consulting</div>
+        </a>
+
+      </div>
+
+      <!-- View all / View less toggle -->
+      <div class="cat-toggle-wrap">
+        <button class="cat-toggle" id="cat-toggle" aria-expanded="false" onclick="toggleCategories()">
+          <span id="cat-toggle-label">View all</span>
+          <svg class="cat-toggle-arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 8l5 5 5-5"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── POPULAR SERVICES ── -->
+  <section class="popular" aria-labelledby="popular-title">
+    <div class="popular__header">
+      <h2 id="popular-title">Explore services</h2>
+      <a href="browse.html" class="popular__see-all">See all →</a>
+    </div>
+    <div class="popular__scroll" role="list">
+      <a href="browse.html?cat=programming" class="service-card" role="listitem">
+        <div class="service-card__img" style="background:linear-gradient(135deg,#1e3a5f 0%,#0ea5e9 100%);">
+          <span style="font-size:2.4rem;">🌐</span>
+          <span class="service-card__label">Website Development</span>
+        </div>
+        <div class="service-card__body">
+          <div class="service-card__title">Full-stack web apps &amp; landing pages</div>
+          <div class="service-card__from"><strong>Browse sellers →</strong></div>
+        </div>
+      </a>
+      <a href="browse.html?cat=video-animation" class="service-card" role="listitem">
+        <div class="service-card__img" style="background:linear-gradient(135deg,#2d1b69 0%,#7c3aed 100%);">
+          <span style="font-size:2.4rem;">🎬</span>
+          <span class="service-card__label">Video Editing</span>
+        </div>
+        <div class="service-card__body">
+          <div class="service-card__title">Reels, ads &amp; YouTube content</div>
+          <div class="service-card__from"><strong>Browse sellers →</strong></div>
+        </div>
+      </a>
+      <a href="browse.html?cat=graphic-design" class="service-card" role="listitem">
+        <div class="service-card__img" style="background:linear-gradient(135deg,#1a3a2a 0%,#10b981 100%);">
+          <span style="font-size:2.4rem;">🎨</span>
+          <span class="service-card__label">Graphic Design</span>
+        </div>
+        <div class="service-card__body">
+          <div class="service-card__title">Logos, brand kits &amp; social assets</div>
+          <div class="service-card__from"><strong>Browse sellers →</strong></div>
+        </div>
+      </a>
+      <a href="browse.html?cat=content-writing" class="service-card" role="listitem">
+        <div class="service-card__img" style="background:linear-gradient(135deg,#3d2a00 0%,#f59e0b 100%);">
+          <span style="font-size:2.4rem;">✍️</span>
+          <span class="service-card__label">Content Writing</span>
+        </div>
+        <div class="service-card__body">
+          <div class="service-card__title">SEO articles, copy &amp; scripts</div>
+          <div class="service-card__from"><strong>Browse sellers →</strong></div>
+        </div>
+      </a>
+      <a href="browse.html?cat=graphic-design" class="service-card" role="listitem">
+        <div class="service-card__img" style="background:linear-gradient(135deg,#1a1a40 0%,#6366f1 100%);">
+          <span style="font-size:2.4rem;">🖼️</span>
+          <span class="service-card__label">UI / UX Design</span>
+        </div>
+        <div class="service-card__body">
+          <div class="service-card__title">App screens &amp; prototypes</div>
+          <div class="service-card__from"><strong>Browse sellers →</strong></div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── HOW IT WORKS ── -->
+  <section class="how" id="how-it-works" aria-labelledby="how-title">
+    <div class="container">
+      <p class="section-eyebrow">Simple by design</p>
+      <h2 class="section-title" id="how-title">How NEXORA works</h2>
+      <p class="section-sub">Whether you're hiring or selling, the process is clear from start to finish.</p>
+      <div class="how__tabs" role="tablist" aria-label="Client or Seller view">
+        <button class="how__tab active" role="tab" aria-selected="true" aria-controls="panel-client" id="tab-client" onclick="switchTab('client')">I'm hiring</button>
+        <button class="how__tab" role="tab" aria-selected="false" aria-controls="panel-seller" id="tab-seller" onclick="switchTab('seller')">I'm selling</button>
+      </div>
+      <div id="panel-client" class="how__panel active" role="tabpanel" aria-labelledby="tab-client">
+        <div class="how__steps">
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">1</div>
+            <div class="step-body">
+              <h3>Post what you need</h3>
+              <p>Sign up free and describe the work. Browse verified sellers by category or use search.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">2</div>
+            <div class="step-body">
+              <h3>Pay securely into escrow</h3>
+              <p>Your payment is held safely in escrow — not released until you approve the delivered work.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">3</div>
+            <div class="step-body">
+              <h3>Review and approve</h3>
+              <p>Message your seller, request changes if needed, then approve when you're happy. Funds release only on your say-so.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="panel-seller" class="how__panel" role="tabpanel" aria-labelledby="tab-seller">
+        <div class="how__steps">
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">1</div>
+            <div class="step-body">
+              <h3>Apply and get verified</h3>
+              <p>Set up your profile and create your gigs. Our team reviews every new seller, and your gigs go live as soon as you are verified.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">2</div>
+            <div class="step-body">
+              <h3>List your services</h3>
+              <p>Create gigs with Basic, Standard and Premium packages. Set your own rates.</p>
+            </div>
+          </div>
+          <div class="how__step">
+            <div class="step-num" aria-hidden="true">3</div>
+            <div class="step-body">
+              <h3>Deliver and get paid</h3>
+              <p>Complete the order and get paid within 3 days of client approval. NEXORA takes a flat 10%, and you keep 90%.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WHY NEXORA ── -->
+  <section class="why" id="about" aria-labelledby="why-title">
+    <div class="container">
+      <p class="section-eyebrow">Why NEXORA</p>
+      <h2 class="section-title" id="why-title">Built around trust</h2>
+      <p class="section-sub">Every feature is designed to protect both sides of every transaction.</p>
+      <div class="why__grid">
+        <div class="why-card">
+          <div class="why-card__icon" style="background:#eff6ff;">🔒</div>
+          <h3>Escrow on every order</h3>
+          <p>Your payment is held securely until you approve the delivery. No approval, no release. Simple.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card__icon" style="background:#f0fdf4;">✅</div>
+          <h3>Verified sellers only</h3>
+          <p>Every seller is reviewed by our team before their services go live. No fake accounts, no unproven claims.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card__icon" style="background:#fefce8;">💵</div>
+          <h3>Clear pricing</h3>
+          <p>Prices are shown upfront. Buyers pay a 5% service fee at checkout, and sellers pay a flat 10% when an order is completed. No hidden charges.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-card__icon" style="background:#fdf4ff;">⚡</div>
+          <h3>3-day payouts</h3>
+          <p>Once the client approves, sellers receive their earnings within 3 business days. Fast, reliable, every time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ESCROW EXPLAINER ── -->
+  <section class="escrow" id="fees" aria-labelledby="escrow-title">
+    <div class="container">
+      <p class="section-eyebrow" style="color:var(--cyan);">How escrow works</p>
+      <h2 class="section-title" id="escrow-title">Your money, protected end to end</h2>
+      <p class="section-sub">NEXORA holds your payment safely until the work is done. Here's exactly what happens.</p>
+      <div class="escrow__steps">
+        <div class="escrow__step">
+          <div class="escrow__num" aria-label="Step 1">1</div>
+          <div class="escrow__line" aria-hidden="true"></div>
+          <div class="escrow__body">
+            <h3>Client pays</h3>
+            <p>Full order amount held securely at checkout. Released only when you approve.</p>
+          </div>
+        </div>
+        <div class="escrow__step">
+          <div class="escrow__num" aria-label="Step 2">2</div>
+          <div class="escrow__line" aria-hidden="true"></div>
+          <div class="escrow__body">
+            <h3>Funds held</h3>
+            <p>Payment sits in escrow. The seller can see it's there — motivation to deliver.</p>
+          </div>
+        </div>
+        <div class="escrow__step">
+          <div class="escrow__num" aria-label="Step 3">3</div>
+          <div class="escrow__line" aria-hidden="true"></div>
+          <div class="escrow__body">
+            <h3>Work delivered</h3>
+            <p>Seller submits the completed work. You review it and request changes if needed.</p>
+          </div>
+        </div>
+        <div class="escrow__step">
+          <div class="escrow__num" aria-label="Step 4">4</div>
+          <div class="escrow__line" aria-hidden="true"></div>
+          <div class="escrow__body">
+            <h3>You approve, funds release</h3>
+            <p>Happy with the work? Approve it. 90% goes to the seller in 3 days. NEXORA keeps 10%.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SELLER CTA ── -->
+  <section class="seller-cta" aria-labelledby="seller-cta-title">
+    <h2 id="seller-cta-title">Ready to sell your skills worldwide?</h2>
+    <p>Get verified, list your services, and reach clients worldwide.</p>
+    <a href="auth.html?role=seller" class="btn-cta-white">Apply as a seller</a>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer" aria-label="Site footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <div class="footer__logo">NEX<span>ORA</span></div>
+          <p class="footer__tagline">Global Talent. Verified. Every payment protected by escrow.</p>
+        </div>
+        <div class="footer__cols">
+          <div class="footer__col">
+            <h4>For clients</h4>
+            <ul>
+              <li><a href="#categories">Browse talent</a></li>
+              <li><a href="#how-it-works">How it works</a></li>
+              <li><a href="#fees">Fees</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4>For sellers</h4>
+            <ul>
+              <li><a href="auth.html?role=seller">Become a seller</a></li>
+              <li><a href="#how-it-works">Seller guide</a></li>
+              <li><a href="#fees">Payouts</a></li>
+            </ul>
+          </div>
+          <div class="footer__col">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#about">About</a></li>
+              <li><a href="auth.html">Contact</a></li>
+              <li><a href="#fees">Terms</a></li>
+              <li><a href="#fees">Privacy</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copy">&copy; 2026 NEXORA. All rights reserved.</p>
+        <nav class="footer__legal" aria-label="Legal links">
+          <a href="#fees">Terms of Service</a>
+          <a href="#fees">Privacy Policy</a>
+        </nav>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ── Tab switcher ── */
+    function switchTab(role) {
+      const tabs   = document.querySelectorAll('.how__tab');
+      const panels = document.querySelectorAll('.how__panel');
+      tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      panels.forEach(p => p.classList.remove('active'));
+      const tab   = document.getElementById('tab-' + role);
+      const panel = document.getElementById('panel-' + role);
+      if (tab)   { tab.classList.add('active');   tab.setAttribute('aria-selected','true'); }
+      if (panel) { panel.classList.add('active'); }
+    }
+
+    /* ── Search handler ── */
+    function handleSearch(e) {
+      e.preventDefault();
+      const q = e.target.q.value.trim();
+      if (q) window.location.href = 'browse.html?q=' + encodeURIComponent(q);
+    }
+
+    /* ── Smooth nav bg on scroll ── */
+    const nav = document.querySelector('.nav');
+    window.addEventListener('scroll', () => {
+      nav.style.background = window.scrollY > 40
+        ? 'rgba(255,255,255,0.98)'
+        : 'rgba(255,255,255,0.92)';
+    }, { passive: true });
+
+    /* ── Scroll-reveal: premium fade-up on entry ── */
+    const revealEls = document.querySelectorAll(
+      '.cat-card, .why-card, .escrow__step, .cta-trust__item'
+    );
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach((el, i) => {
+      el.style.transitionDelay = (i % 4) * 60 + 'ms';
+      revealObs.observe(el);
+    });
+
+    /* ── CATEGORIES TOGGLE ── */
+    function toggleCategories() {
+      const grid     = document.getElementById('cat-grid');
+      const btn      = document.getElementById('cat-toggle');
+      const label    = document.getElementById('cat-toggle-label');
+      const arrow    = btn.querySelector('.cat-toggle-arrow');
+      const expanded = grid.classList.toggle('expanded');
+      btn.setAttribute('aria-expanded', expanded);
+      label.textContent = expanded ? 'View less' : 'View all';
+      arrow.style.transform = expanded ? 'rotate(180deg)' : 'rotate(0deg)';
+      /* re-trigger reveal on newly shown cards */
+      if (expanded) {
+        document.querySelectorAll('.cat-card--extra').forEach(function(el) {
+          el.classList.add('revealed');
+        });
+      }
+    }
+
+    /* ── MOBILE DRAWER ── */
+    const drawer = document.getElementById('nav-drawer');
+    const burger = document.querySelector('.nav__burger');
+
+    function toggleDrawer() {
+      const isOpen = drawer.classList.toggle('open');
+      burger.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+      if (!isOpen) drawer.classList.remove('show-currency');
+    }
+
+    function showCurrencyPanel() {
+      drawer.classList.add('show-currency');
+    }
+
+    function hideCurrencyPanel() {
+      drawer.classList.remove('show-currency');
+    }
+
+    function setCurrency(code, symbol) {
+      document.querySelectorAll('.currency__row').forEach(row => {
+        const isActive = row.dataset.code === code;
+        row.classList.toggle('active', isActive);
+        const check = row.querySelector('.currency__check');
+        if (check) check.remove();
+        if (isActive) {
+          const span = document.createElement('span');
+          span.className = 'currency__check';
+          span.textContent = '✓';
+          row.appendChild(span);
+        }
+      });
+      const label = document.getElementById('curr-label');
+      if (label) label.textContent = code;
+      try { localStorage.setItem('nexora_currency', JSON.stringify({ code, symbol })); } catch(e) {}
+      hideCurrencyPanel();
+    }
+
+    // Restore saved currency on load
+    (function() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('nexora_currency') || 'null');
+        if (!saved || !saved.code) return;
+        const label = document.getElementById('curr-label');
+        if (label) label.textContent = saved.code;
+        document.querySelectorAll('.currency__row').forEach(row => {
+          const isActive = row.dataset.code === saved.code;
+          row.classList.toggle('active', isActive);
+          const existing = row.querySelector('.currency__check');
+          if (existing) existing.remove();
+          if (isActive) {
+            const span = document.createElement('span');
+            span.className = 'currency__check';
+            span.textContent = '✓';
+            row.appendChild(span);
+          }
+        });
+      } catch(e) {}
+    })();
+
+    // Close drawer when tapping the overlay edge or pressing Escape
+    drawer.addEventListener('click', function(e) {
+      if (e.target === drawer) toggleDrawer();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) toggleDrawer();
+    });
+  </script>
+</body>
+</html>

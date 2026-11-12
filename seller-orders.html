@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Seller Orders</title>
+  <meta name="description" content="Manage the orders buyers have placed on your gigs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --orange-border: #fde68a;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 80px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .topbar-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800; font-size: 1.1rem; text-decoration: none;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .topbar-title { margin-left: auto; font-size: .82rem; font-weight: 600; color: var(--muted); }
+
+    /* SUMMARY STRIP */
+    .summary {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      padding: 14px 16px 4px;
+    }
+    .sum-box {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px; text-align: center;
+    }
+    .sum-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 800; }
+    .sum-label { font-size: .68rem; color: var(--muted); margin-top: 2px; font-weight: 600; }
+
+    /* ESCROW NOTE */
+    .escrow-note {
+      margin: 10px 16px 0; padding: 10px 12px; border-radius: 10px;
+      background: var(--green-bg); border: 1px solid var(--green-border);
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: .76rem; line-height: 1.5; color: #047857;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      border-top: 1px solid var(--border); margin-top: 14px;
+      padding: 0 12px; display: flex; gap: 4px; overflow-x: auto;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      padding: 12px 12px; font-size: .82rem; font-weight: 600;
+      color: var(--muted); white-space: nowrap; border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    .content { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    /* ORDER CARD */
+    .order-card { background: var(--white); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+    .order-top { padding: 14px 14px 10px; display: flex; gap: 12px; align-items: flex-start; }
+    .gig-thumb {
+      width: 56px; height: 44px; border-radius: 8px; background: var(--cyan-light);
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; overflow: hidden;
+    }
+    .gig-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .order-meta { flex: 1; min-width: 0; }
+    .order-title { font-size: .88rem; font-weight: 700; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .order-sub { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+
+    .status-badge { padding: 3px 9px; border-radius: 20px; font-size: .7rem; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+    .st-todo      { background: var(--cyan-light); color: var(--cyan-dark); }
+    .st-revision  { background: var(--orange-bg); color: #b45309; }
+    .st-delivered { background: var(--purple-bg); color: var(--purple); }
+    .st-completed { background: var(--green-bg); color: #047857; }
+    .st-cancelled { background: var(--red-bg); color: var(--red); }
+    .st-disputed  { background: var(--orange-bg); color: #b45309; }
+
+    /* DUE ROW */
+    .due-row {
+      margin: 0 14px 10px; padding: 8px 10px; border-radius: 8px;
+      background: var(--off-white); font-size: .76rem; color: var(--slate);
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+    .due-row strong { font-weight: 700; }
+    .due-late { background: var(--red-bg); color: var(--red); }
+    .due-soon { background: var(--orange-bg); color: #b45309; }
+
+    /* REQUIREMENTS */
+    .req-toggle {
+      width: calc(100% - 28px); margin: 0 14px 10px; padding: 9px 10px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: .78rem; font-weight: 600; color: var(--slate);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .req-box {
+      margin: 0 14px 10px; padding: 10px 12px; border-radius: 8px;
+      background: var(--cyan-light); font-size: .8rem; line-height: 1.55;
+      color: var(--slate); white-space: pre-wrap; word-break: break-word;
+    }
+    .note-box {
+      margin: 0 14px 10px; padding: 10px 12px; border-radius: 8px;
+      background: var(--purple-bg); border: 1px solid #ddd6fe;
+      font-size: .8rem; line-height: 1.55; color: var(--slate);
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .note-box a, .req-box a { color: var(--cyan-dark); word-break: break-all; }
+    .box-label { display: block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-bottom: 4px; white-space: normal; }
+
+    /* FOOTER */
+    .order-footer {
+      padding: 10px 14px 12px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .earn { font-family: 'Space Grotesk', sans-serif; font-size: .95rem; font-weight: 800; color: #047857; }
+    .earn-label { font-size: .7rem; color: var(--muted); margin-top: 1px; }
+    .order-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-sm { padding: 8px 12px; border-radius: 8px; font-size: .78rem; font-weight: 700; }
+    .btn-primary { background: var(--cyan); color: white; }
+    .btn-ghost { border: 1.5px solid var(--border); color: var(--slate); }
+
+    /* EMPTY / LOADING */
+    .empty-state {
+      min-height: 40vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; padding: 32px 24px; text-align: center;
+    }
+    .empty-icon { font-size: 3rem; }
+    .empty-state h3 { font-size: 1.05rem; font-weight: 700; }
+    .empty-state p { font-size: .85rem; color: var(--muted); max-width: 270px; line-height: 1.5; }
+    .btn-cta { padding: 12px 24px; border-radius: 12px; background: var(--cyan); color: white; font-size: .9rem; font-weight: 700; margin-top: 4px; }
+    .loading { padding: 48px 16px; text-align: center; color: var(--muted); font-size: .88rem; }
+    .spin { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* MODAL */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; display: none; align-items: flex-end; }
+    .modal { background: var(--white); border-radius: 20px 20px 0 0; padding: 20px 20px 32px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal p { font-size: .82rem; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .modal label { display: block; font-size: .78rem; font-weight: 700; color: var(--slate); margin-bottom: 6px; }
+    .modal textarea {
+      width: 100%; min-height: 120px; padding: 10px 12px; border-radius: 10px;
+      border: 1.5px solid var(--border); font-family: inherit; font-size: .88rem;
+      resize: vertical; color: var(--charcoal);
+    }
+    .modal textarea:focus { outline: none; border-color: var(--cyan); }
+    .hint { font-size: .72rem; color: var(--muted); margin-top: 6px; }
+    .err { font-size: .76rem; color: var(--red); margin-top: 6px; display: none; }
+    .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .modal-btn { padding: 13px; border-radius: 10px; font-size: .92rem; font-weight: 700; width: 100%; }
+    .modal-btn:disabled { opacity: .6; }
+
+    /* BOTTOM NAV */
+    .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 200; }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 8px 4px 10px; gap: 3px; font-size: .65rem; font-weight: 600; color: var(--muted); text-decoration: none;
+    }
+    .nav-item.active { color: var(--purple); }
+    .nav-item svg { width: 22px; height: 22px; }
+
+    .toast {
+      position: fixed; bottom: 90px; left: 16px; right: 16px; text-align: center;
+      background: var(--charcoal); color: white; padding: 11px 16px; border-radius: 10px;
+      font-size: .82rem; font-weight: 600; z-index: 500; box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="seller-dashboard.html" class="topbar-logo">NEXORA</a>
+  <div class="topbar-title">Seller Orders</div>
+</div>
+
+<div class="summary">
+  <div class="sum-box"><div class="sum-num" id="sumTodo" style="color:var(--cyan-dark)">0</div><div class="sum-label">To do</div></div>
+  <div class="sum-box"><div class="sum-num" id="sumReview" style="color:var(--purple)">0</div><div class="sum-label">With buyer</div></div>
+  <div class="sum-box"><div class="sum-num" id="sumEarned" style="color:#047857">$0</div><div class="sum-label">Earned</div></div>
+</div>
+
+<div class="escrow-note">
+  <span>🔒</span>
+  <span>Buyer payments are held in escrow. Your earnings are released when the buyer approves the delivery.</span>
+</div>
+
+<div class="filter-tabs">
+  <button class="tab-btn active" onclick="setFilter('todo',this)">To Do</button>
+  <button class="tab-btn" onclick="setFilter('delivered',this)">Delivered</button>
+  <button class="tab-btn" onclick="setFilter('completed',this)">Completed</button>
+  <button class="tab-btn" onclick="setFilter('all',this)">All</button>
+</div>
+
+<div id="mainContent">
+  <div class="loading"><div class="spin"></div>Loading orders…</div>
+</div>
+
+<nav class="nav-bar">
+  <a href="seller-dashboard.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Home
+  </a>
+  <a href="create-gig.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    Gigs
+  </a>
+  <a href="seller-orders.html" class="nav-item active">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    Orders
+  </a>
+  <a href="messages.html" class="nav-item">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Messages
+  </a>
+</nav>
+
+<!-- DELIVER MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Deliver this order</h3>
+    <p id="modalGig"></p>
+    <label for="deliveryNote">Delivery note for the buyer</label>
+    <textarea id="deliveryNote" maxlength="2000" placeholder="Describe what you've delivered and paste a link to the files (for example a Google Drive or Dropbox link)."></textarea>
+    <div class="hint">The buyer will review this and either approve it or ask for a revision.</div>
+    <div class="err" id="noteErr">Please write a short note (at least 10 characters).</div>
+    <div class="modal-btns">
+      <button class="modal-btn" id="deliverBtn" style="background:var(--purple);color:white;" onclick="confirmDeliver()">📦 Mark as Delivered</button>
+      <button class="modal-btn" style="border:1.5px solid var(--border);color:var(--muted);" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  var supa, user;
+  var allOrders = [];
+  var gigMap = {};
+  var activeFilter = 'todo';
+  var deliverId = null;
+  var openReq = {};
+
+  // ── INIT ──────────────────────────────────────────────────────────────
+  (function init() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = async function() {
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var { data: { session } } = await supa.auth.getSession();
+      if (!session) { location.href = 'auth.html?next=seller-orders.html'; return; }
+      user = session.user;
+      var role = user.user_metadata ? user.user_metadata.role : null;
+      if (role === 'buyer') { location.href = 'orders.html'; return; }
+      await loadOrders();
+    };
+    s.onerror = function() { showError('Could not connect. Check your internet and refresh.'); };
+    document.head.appendChild(s);
+  })();
+
+  // ── LOAD ──────────────────────────────────────────────────────────────
+  async function loadOrders() {
+    var { data, error } = await supa
+      .from('orders')
+      .select('*')
+      .eq('seller_id', user.id)
+      .not('status', 'in', '(pending_payment,payment_failed)')
+      .order('created_at', { ascending: false });
+
+    if (error) { showError(error.message); return; }
+    allOrders = data || [];
+
+    // Fetch gig delivery days + covers for due dates
+    var ids = [];
+    allOrders.forEach(function(o) { if (o.gig_id && ids.indexOf(o.gig_id) === -1) ids.push(o.gig_id); });
+    if (ids.length) {
+      var { data: gigs } = await supa.from('gigs')
+        .select('id, cover_image, basic_days, std_days, prem_days')
+        .in('id', ids);
+      (gigs || []).forEach(function(g) { gigMap[g.id] = g; });
+    }
+
+    renderSummary();
+    render();
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────
+  function isTodo(o) { return o.status === 'active' || o.status === 'in_progress'; }
+  function isRevision(o) { return o.status === 'in_progress' && !!o.delivered_at; }
+
+  function dueDate(o) {
+    var g = gigMap[o.gig_id];
+    if (!g) return null;
+    var days = o.tier === 'premium' ? g.prem_days : o.tier === 'standard' ? g.std_days : g.basic_days;
+    days = Number(days) || 0;
+    if (!days) return null;
+    var start = new Date(o.paid_at || o.created_at);
+    if (isNaN(start)) return null;
+    return new Date(start.getTime() + days * 86400000);
+  }
+
+  function fmtDate(d) {
+    try { return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
+    catch (e) { return ''; }
+  }
+
+  // Seller receives 90% of the gig price (NEXORA keeps a 10% seller fee)
+  function sellerEarn(o) {
+    if (o.seller_earnings !== null && o.seller_earnings !== undefined) return Number(o.seller_earnings);
+    return Math.round(Number(o.price || 0) * 90) / 100;
+  }
+
+  function money(n) { return '$' + Number(n || 0).toFixed(2); }
+
+  function escHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  // Escape first, then turn plain https links into safe clickable links
+  function linkify(s) {
+    return escHtml(s).replace(/https?:\/\/[^\s<]+/g, function(url) {
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+    });
+  }
+
+  function cap(s) { s = String(s || 'basic'); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ── SUMMARY ───────────────────────────────────────────────────────────
+  function renderSummary() {
+    var todo = 0, review = 0, earned = 0;
+    allOrders.forEach(function(o) {
+      if (isTodo(o)) todo++;
+      if (o.status === 'delivered') review++;
+      if (o.status === 'completed') earned += sellerEarn(o);
+    });
+    document.getElementById('sumTodo').textContent = todo;
+    document.getElementById('sumReview').textContent = review;
+    document.getElementById('sumEarned').textContent = '$' + (earned % 1 === 0 ? earned.toFixed(0) : earned.toFixed(2));
+  }
+
+  // ── FILTER / RENDER ───────────────────────────────────────────────────
+  function setFilter(f, btn) {
+    activeFilter = f;
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  }
+
+  function render() {
+    var list = allOrders.filter(function(o) {
+      if (activeFilter === 'todo') return isTodo(o) || o.status === 'disputed';
+      if (activeFilter === 'all') return true;
+      return o.status === activeFilter;
+    });
+
+    // To Do: soonest due first
+    if (activeFilter === 'todo') {
+      list.sort(function(a, b) {
+        var da = dueDate(a), db = dueDate(b);
+        return (da ? da.getTime() : Infinity) - (db ? db.getTime() : Infinity);
+      });
+    }
+
+    var mc = document.getElementById('mainContent');
+    if (!list.length) {
+      var copy = {
+        todo:      ['🎉', 'All caught up', 'New orders that need your work will show up here.'],
+        delivered: ['📦', 'Nothing waiting', 'Orders you deliver wait here until the buyer reviews them.'],
+        completed: ['✅', 'No completed orders yet', 'Orders the buyer has approved will appear here.'],
+        all:       ['📋', 'No orders yet', 'When a buyer pays for one of your gigs, the order appears here.'],
+      }[activeFilter];
+      mc.innerHTML = '<div class="empty-state"><div class="empty-icon">' + copy[0] + '</div><h3>' + copy[1] + '</h3><p>' + copy[2] + '</p>' +
+        (activeFilter === 'all' ? '<button class="btn-cta" onclick="location.href=\'create-gig.html\'">+ Create a Gig</button>' : '') +
+        '</div>';
+      return;
+    }
+
+    mc.innerHTML = '<div class="content">' + list.map(card).join('') + '</div>';
+  }
+
+  function card(o) {
+    var badge;
+    if (isRevision(o))                 badge = ['st-revision', 'Revision'];
+    else if (isTodo(o))                badge = ['st-todo', 'In Progress'];
+    else if (o.status === 'delivered') badge = ['st-delivered', 'With Buyer'];
+    else if (o.status === 'completed') badge = ['st-completed', 'Completed'];
+    else if (o.status === 'disputed')  badge = ['st-disputed', 'Under Review'];
+    else                               badge = ['st-cancelled', cap(o.status)];
+
+    var g = gigMap[o.gig_id];
+    var thumb = (g && g.cover_image)
+      ? '<img src="' + escHtml(g.cover_image) + '" alt="">'
+      : '📦';
+
+    var placed = fmtDate(new Date(o.created_at));
+    var orderNo = String(o.id || '').slice(0, 8).toUpperCase();
+
+    // Due row (only while work is pending)
+    var due = '';
+    if (isTodo(o)) {
+      var d = dueDate(o);
+      if (d) {
+        var left = Math.ceil((d.getTime() - Date.now()) / 86400000);
+        var cls = left < 0 ? 'due-late' : left <= 1 ? 'due-soon' : '';
+        var txt = left < 0 ? Math.abs(left) + ' day' + (Math.abs(left) === 1 ? '' : 's') + ' late'
+                : left === 0 ? 'Due today'
+                : left + ' day' + (left === 1 ? '' : 's') + ' left';
+        due = '<div class="due-row ' + cls + '"><span>Due <strong>' + escHtml(fmtDate(d)) + '</strong></span><strong>' + txt + '</strong></div>';
+      }
+    }
+
+    // Requirements (collapsible)
+    var req = '';
+    if (o.requirements) {
+      req = '<button class="req-toggle" onclick="toggleReq(\'' + escHtml(o.id) + '\')">' +
+              '<span>📝 Buyer requirements</span><span>' + (openReq[o.id] ? '▲' : '▼') + '</span></button>' +
+            (openReq[o.id] ? '<div class="req-box">' + linkify(o.requirements) + '</div>' : '');
+    }
+
+    // Revision notice
+    var revision = '';
+    if (o.status === 'disputed') {
+      revision += '<div class="due-row due-soon" style="display:block;">🛡️ The buyer reported a problem. NEXORA is reviewing this order. Please check Messages and keep all communication on NEXORA.</div>';
+    }
+    if (o.admin_note && (o.status === 'completed' || o.status === 'cancelled' || o.status === 'in_progress')) {
+      revision += '<div class="note-box"><span class="box-label">Note from NEXORA</span>' + escHtml(o.admin_note) + '</div>';
+    }
+    if (isRevision(o)) {
+      revision = '<div class="due-row due-soon" style="display:block;">🔄 The buyer asked for a revision. Check Messages for details, then deliver again.</div>';
+    }
+
+    // Delivery note (after delivering)
+    var note = '';
+    if (o.delivery_note && (o.status === 'delivered' || o.status === 'completed' || isRevision(o))) {
+      note = '<div class="note-box"><span class="box-label">Your delivery note</span>' + linkify(o.delivery_note) + '</div>';
+    }
+
+    // Actions
+    var actions = '';
+    if (isTodo(o)) {
+      actions = '<button class="btn-sm btn-ghost" onclick="messageBuyer(\'' + escHtml(o.id) + '\',\'' + escHtml(o.buyer_id) + '\')">💬</button>' +
+                '<button class="btn-sm btn-primary" onclick="openDeliver(\'' + escHtml(o.id) + '\')">' + (isRevision(o) ? 'Deliver Again' : 'Deliver Now') + '</button>';
+    } else if (o.status === 'delivered') {
+      actions = '<button class="btn-sm btn-ghost" onclick="messageBuyer(\'' + escHtml(o.id) + '\',\'' + escHtml(o.buyer_id) + '\')">💬 Message</button>';
+    }
+
+    var earnLabel = o.status === 'completed' ? 'Earned' : 'You earn';
+
+    return '<div class="order-card">' +
+      '<div class="order-top">' +
+        '<div class="gig-thumb">' + thumb + '</div>' +
+        '<div class="order-meta">' +
+          '<div class="order-title">' + escHtml(o.gig_title || 'Gig order') + '</div>' +
+          '<div class="order-sub">#' + escHtml(orderNo) + ' · ' + escHtml(cap(o.tier)) + ' · ' + escHtml(placed) + '</div>' +
+        '</div>' +
+        '<span class="status-badge ' + badge[0] + '">' + escHtml(badge[1]) + '</span>' +
+      '</div>' +
+      due + revision + req + note +
+      '<div class="order-footer">' +
+        '<div><div class="earn">' + money(sellerEarn(o)) + '</div><div class="earn-label">' + earnLabel + ' · after 10% fee</div></div>' +
+        '<div class="order-actions">' + actions + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function toggleReq(id) { openReq[id] = !openReq[id]; render(); }
+
+  function messageBuyer(orderId, buyerId) {
+    location.href = 'messages.html?order=' + encodeURIComponent(orderId) + '&user=' + encodeURIComponent(buyerId);
+  }
+
+  // ── DELIVER ───────────────────────────────────────────────────────────
+  function openDeliver(id) {
+    var o = allOrders.find(function(x) { return x.id === id; });
+    if (!o) return;
+    deliverId = id;
+    document.getElementById('modalGig').textContent = (o.gig_title || 'Gig order') + ' · ' + cap(o.tier) + ' package';
+    document.getElementById('deliveryNote').value = '';
+    document.getElementById('noteErr').style.display = 'none';
+    var btn = document.getElementById('deliverBtn');
+    btn.disabled = false; btn.textContent = '📦 Mark as Delivered';
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').style.display = 'none';
+    deliverId = null;
+  }
+
+  async function confirmDeliver() {
+    if (!deliverId) return;
+    var note = document.getElementById('deliveryNote').value.trim();
+    if (note.length < 10) { document.getElementById('noteErr').style.display = 'block'; return; }
+
+    var btn = document.getElementById('deliverBtn');
+    btn.disabled = true; btn.textContent = 'Delivering…';
+
+    var { error } = await supa.from('orders')
+      .update({ status: 'delivered', delivery_note: note })
+      .eq('id', deliverId);
+
+    if (error) {
+      btn.disabled = false; btn.textContent = '📦 Mark as Delivered';
+      var e = document.getElementById('noteErr');
+      e.textContent = 'Could not deliver: ' + error.message;
+      e.style.display = 'block';
+      return;
+    }
+
+    closeModal();
+    toast('📦 Delivered! The buyer has been asked to review it.');
+    await loadOrders();
+  }
+
+  // ── UI ────────────────────────────────────────────────────────────────
+  function showError(msg) {
+    document.getElementById('mainContent').innerHTML =
+      '<div class="empty-state"><div class="empty-icon">😕</div><h3>Could not load orders</h3><p>' + escHtml(msg) + '</p>' +
+      '<button class="btn-cta" onclick="location.reload()">Try Again</button></div>';
+  }
+
+  function toast(msg) {
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 3200);
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

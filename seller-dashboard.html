@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Seller Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* NAV */
+    .nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 60px; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.25rem; font-weight: 800;
+      letter-spacing: -.03em; color: var(--charcoal); flex-shrink: 0;
+    }
+    .logo span {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--cyan); border-radius: 50%;
+      margin-left: 2px; vertical-align: middle; margin-bottom: 3px;
+    }
+    .seller-badge {
+      background: var(--purple-bg); color: var(--purple);
+      font-size: .7rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; flex-shrink: 0;
+    }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); position: relative;
+    }
+    .badge {
+      position: absolute; top: -2px; right: -2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--red); color: white;
+      font-size: .6rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--white);
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--purple); color: white;
+      font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Grotesk', sans-serif; cursor: pointer; flex-shrink: 0;
+    }
+
+    /* LAYOUT */
+    .layout { display: flex; min-height: calc(100vh - 60px); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      background: var(--white); border-right: 1px solid var(--border);
+      padding: 20px 12px;
+      position: sticky; top: 60px;
+      height: calc(100vh - 60px); overflow-y: auto;
+    }
+    .sidebar-label {
+      font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+      color: var(--muted); text-transform: uppercase;
+      padding: 0 8px; margin-bottom: 6px;
+    }
+    .sidebar-section { margin-bottom: 24px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      font-size: .875rem; font-weight: 500; color: var(--slate);
+      width: 100%; text-align: left;
+      transition: background .15s, color .15s; margin-bottom: 2px;
+    }
+    .nav-item svg { color: var(--muted); flex-shrink: 0; }
+    .nav-item:hover { background: var(--off-white); color: var(--charcoal); }
+    .nav-item.active { background: var(--purple-bg); color: var(--purple); font-weight: 600; }
+    .nav-item.active svg { color: var(--purple); }
+    .nav-count {
+      margin-left: auto; background: var(--cyan); color: white;
+      font-size: .65rem; font-weight: 700; padding: 1px 6px;
+      border-radius: 99px; min-width: 18px; text-align: center;
+    }
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0 16px; }
+
+    /* MAIN */
+    .main { flex: 1; padding: 24px 20px; max-width: 900px; overflow-x: hidden; }
+
+    /* EARN BANNER */
+    .earn-banner {
+      background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%);
+      border-radius: 16px; padding: 22px 20px;
+      color: white; margin-bottom: 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .earn-banner h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;
+    }
+    .earn-banner p { font-size: .85rem; opacity: .85; }
+    .earn-btn {
+      background: white; color: var(--purple);
+      padding: 10px 16px; border-radius: 8px;
+      font-size: .82rem; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      flex-shrink: 0; white-space: nowrap;
+    }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 22px; }
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 12px;
+    }
+    .stat-label { font-size: .72rem; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+    .stat-value { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; }
+    .stat-value.green { color: var(--green); }
+    .stat-value.purple { color: var(--purple); }
+    .stat-sub { font-size: .68rem; color: var(--muted); margin-top: 3px; }
+
+    /* SECTION */
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+    }
+    .section-head h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; }
+    .see-all { font-size: .8rem; color: var(--cyan); font-weight: 600; }
+
+    /* NEW GIG BUTTON */
+    .new-gig-btn {
+      background: var(--cyan); color: white;
+      padding: 8px 16px; border-radius: 8px;
+      font-size: .82rem; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      display: flex; align-items: center; gap: 6px;
+      transition: background .2s;
+    }
+    .new-gig-btn:hover { background: var(--cyan-dark); }
+
+    /* GIGS LIST */
+    .gigs-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .gig-row {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .gig-thumb {
+      width: 52px; height: 52px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; flex-shrink: 0;
+    }
+    .gig-info { flex: 1; min-width: 0; }
+    .gig-title { font-size: .875rem; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gig-meta { font-size: .75rem; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .gig-price-tag { font-family: 'Space Grotesk', sans-serif; font-size: .85rem; font-weight: 700; color: var(--cyan); flex-shrink: 0; }
+    .gig-status {
+      font-size: .7rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 5px; flex-shrink: 0;
+    }
+    .gig-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .gig-action {
+      width: 30px; height: 30px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); border: 1.5px solid var(--border);
+      transition: border-color .2s, color .2s;
+    }
+    .gig-action:hover { border-color: var(--cyan); color: var(--cyan); }
+    .s-active  { background: var(--green-bg);  color: var(--green); }
+    .s-draft   { background: var(--off-white); color: var(--muted); }
+    .s-paused  { background: var(--orange-bg); color: var(--orange); }
+
+    /* ORDERS */
+    .orders-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+    .order-row {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .order-buyer {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; color: white; flex-shrink: 0;
+    }
+    .order-info { flex: 1; min-width: 0; }
+    .order-title { font-size: .85rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .order-meta { font-size: .75rem; color: var(--muted); }
+    .order-right { text-align: right; flex-shrink: 0; }
+    .order-amt { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700; color: var(--green); }
+    .order-status {
+      font-size: .68rem; font-weight: 700; padding: 3px 7px;
+      border-radius: 5px; display: inline-block; margin-top: 3px;
+    }
+    .os-new      { background: var(--cyan-light); color: var(--cyan); }
+    .os-progress { background: var(--purple-bg);  color: var(--purple); }
+    .os-review   { background: var(--orange-bg);  color: var(--orange); }
+    .os-done     { background: var(--green-bg);   color: var(--green); }
+
+    /* PROFILE SETUP */
+    .setup-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; margin-bottom: 24px;
+    }
+    .setup-card h4 { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700; margin-bottom: 12px; }
+    .setup-steps { display: flex; flex-direction: column; gap: 8px; }
+    .setup-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: .82rem; color: var(--slate);
+    }
+    .step-check {
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: .7rem; font-weight: 700;
+    }
+    .step-done  { background: var(--green-bg);  color: var(--green); }
+    .step-todo  { background: var(--off-white); border: 2px solid var(--border); color: var(--muted); }
+    .step-label { flex: 1; }
+    .step-action { font-size: .75rem; color: var(--cyan); font-weight: 600; }
+    .progress-bar {
+      height: 6px; background: var(--border); border-radius: 99px;
+      margin-bottom: 12px; overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: var(--cyan); border-radius: 99px; width: 33%; }
+
+    /* EMPTY */
+    .empty {
+      text-align: center; padding: 32px 20px;
+      background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .empty-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .empty h4 { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; margin-bottom: 5px; }
+    .empty p { font-size: .8rem; color: var(--muted); margin-bottom: 14px; }
+    .empty-btn {
+      background: var(--cyan); color: white;
+      padding: 9px 20px; border-radius: 7px;
+      font-size: .82rem; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 8px 0 12px; z-index: 100;
+    }
+    .bnav-items { display: flex; justify-content: space-around; }
+    .bnav-item {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 3px; font-size: .65rem; font-weight: 600;
+      color: var(--muted); padding: 4px 8px;
+    }
+    .bnav-item.active { color: var(--purple); }
+    .bnav-item svg { width: 22px; height: 22px; }
+
+    @media (max-width: 680px) {
+      .sidebar { display: none; }
+      .bottom-nav { display: block; }
+      .layout { overflow-x: hidden; }
+      .main { padding: 14px 12px 80px; width: 100%; }
+      .stats { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .stat-card { padding: 12px 10px; }
+      .stat-value { font-size: 1.15rem; }
+      .nav { padding: 0 12px; }
+      .earn-banner { flex-direction: column; align-items: flex-start; border-radius: 12px; }
+      .earn-btn { width: 100%; text-align: center; }
+      .gig-row { flex-wrap: wrap; gap: 10px; }
+      .gig-actions { margin-left: auto; }
+      .order-row { padding: 12px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="logo">NEXORA<span></span></a>
+  <span class="seller-badge">Seller</span>
+  <div class="nav-right">
+    <div class="nav-icon" onclick="location.href='messages.html'" style="cursor:pointer" aria-label="Messages">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <div class="badge" id="msg-badge" style="display:none"></div>
+    </div>
+    <div class="nav-icon">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="avatar" id="nav-avatar">MB</div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Seller</div>
+      <button class="nav-item active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        My Gigs
+      </button>
+      <button class="nav-item" onclick="location.href='seller-orders.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Orders
+      </button>
+      <button class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </button>
+      <button class="nav-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Earnings
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Account</div>
+      <button class="nav-item" onclick="location.href='profile.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </button>
+      <button class="nav-item" onclick="signOut()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Banner -->
+    <div class="earn-banner">
+      <div>
+        <h2>Welcome, <span id="greet-name">Seller</span> 💼</h2>
+        <p id="banner-sub">Checking your verification status…</p>
+      </div>
+      <button class="earn-btn" onclick="location.href='create-gig.html'">+ New Gig</button>
+    </div>
+
+    <!-- Shown only while the seller is awaiting approval -->
+    <div id="verify-note" style="display:none;margin:0 0 16px;padding:12px 14px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:.84rem;line-height:1.5;">
+      <strong style="display:block;margin-bottom:2px;">⏳ Your gigs are hidden from buyers for now</strong>
+      NEXORA reviews every seller before their gigs go live. Make sure your profile has a clear photo, headline and bio.
+      <a href="profile.html" style="display:inline-block;margin-top:6px;font-weight:700;color:#b45309;">Complete my profile →</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Earned</div>
+        <div class="stat-value green" id="stat-earned">$0</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Orders</div>
+        <div class="stat-value purple" id="stat-orders">0</div>
+        <div class="stat-sub">In progress</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">My Gigs</div>
+        <div class="stat-value" id="stat-gigs">—</div>
+        <div class="stat-sub">Published</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">With Buyer</div>
+        <div class="stat-value" id="stat-views">0</div>
+        <div class="stat-sub">Awaiting review</div>
+      </div>
+    </div>
+
+    <!-- Profile Setup -->
+    <div class="setup-card" id="setup-card">
+      <h4>Complete your seller profile</h4>
+      <div class="progress-bar"><div class="progress-fill" id="setup-progress"></div></div>
+      <div class="setup-steps">
+        <div class="setup-step">
+          <div class="step-check step-done">✓</div>
+          <span class="step-label">Create account</span>
+        </div>
+        <div class="setup-step" onclick="location.href='profile.html'" style="cursor:pointer">
+          <div class="step-check step-todo" id="check-profile"></div>
+          <span class="step-label">Add profile photo &amp; bio</span>
+          <span class="step-action">Set up →</span>
+        </div>
+        <div class="setup-step" onclick="location.href='create-gig.html'" style="cursor:pointer">
+          <div class="step-check step-todo" id="check-gig"></div>
+          <span class="step-label">Create your first gig</span>
+          <span class="step-action" id="check-gig-action">Create →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Gigs -->
+    <div class="section-head">
+      <h3>My Gigs</h3>
+      <button class="new-gig-btn" onclick="location.href='create-gig.html'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Gig
+      </button>
+    </div>
+    <div class="gigs-list" id="gigs-list">
+      <div style="padding:24px 16px; text-align:center; color:var(--muted); font-size:.9rem;">
+        Loading your gigs…
+      </div>
+    </div>
+
+    <!-- Active Orders -->
+    <div class="section-head">
+      <h3>Active Orders</h3>
+      <a href="seller-orders.html" style="font-size:.8rem;font-weight:600;color:var(--cyan);">View all</a>
+    </div>
+    <div class="orders-list" id="orders-list">
+      <div style="padding:24px 16px; text-align:center; color:var(--muted); font-size:.9rem;">
+        No active orders yet. Orders will appear here once buyers purchase your gigs.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="bnav-items">
+    <button class="bnav-item active" onclick="location.href='seller-dashboard.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Home
+    </button>
+    <button class="bnav-item" onclick="location.href='create-gig.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Gigs
+    </button>
+    <button class="bnav-item" onclick="location.href='seller-orders.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Orders
+    </button>
+    <button class="bnav-item" onclick="location.href='messages.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Messages
+    </button>
+    <button class="bnav-item" onclick="location.href='profile.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </button>
+  </div>
+</nav>
+
+<script>
+  var supa;
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload = function() {
+    supa = window.supabase.createClient(
+      'https://tzzhbzaxoodxbcezcynw.supabase.co',
+      'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX'
+    );
+    initDashboard();
+  };
+  document.head.appendChild(s);
+
+  async function initDashboard() {
+    var { data: { session } } = await supa.auth.getSession();
+    if (!session) { location.href = 'auth.html'; return; }
+
+    // Always get fresh user metadata
+    var { data: { user } } = await supa.auth.getUser();
+    var userRole = user.user_metadata ? user.user_metadata.role : null;
+    if (userRole === 'buyer') { location.href = 'buyer-dashboard.html'; return; }
+    if (!userRole) { location.href = 'pick-role.html'; return; }
+
+    var meta = user.user_metadata || {};
+    var fullName = meta.full_name || user.email || 'Seller';
+    var firstName = fullName.split(' ')[0];
+    document.getElementById('greet-name').textContent = firstName;
+    var parts = fullName.split(' ');
+    var initials = parts.length >= 2
+      ? parts[0][0].toUpperCase() + parts[parts.length-1][0].toUpperCase()
+      : fullName.slice(0,2).toUpperCase();
+    document.getElementById('nav-avatar').textContent = initials;
+    var navAv = document.getElementById('nav-avatar');
+    if (meta.avatar_url && /^https:\/\//.test(meta.avatar_url)) {
+      navAv.textContent = '';
+      navAv.style.overflow = 'hidden';
+      navAv.innerHTML = '<img src="' + String(meta.avatar_url).replace(/"/g, '&quot;') + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
+    }
+    navAv.style.cursor = 'pointer';
+    navAv.onclick = function() { location.href = 'profile.html'; };
+
+    // Load real gig data
+    loadGigs(user.id, meta);
+    loadUnreadBadge(user.id);
+    loadSellerOrders(user.id);
+    loadVerifyStatus(user.id);
+  }
+
+  async function loadGigs(userId, meta) {
+    var { data: gigs, error } = await supa
+      .from('gigs')
+      .select('id, title, basic_price, basic_days, status, created_at, cover_image')
+      .eq('seller_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      document.getElementById('gigs-list').innerHTML =
+        '<div style="padding:16px;color:var(--red);font-size:.85rem;">Could not load gigs. Please refresh.</div>';
+      document.getElementById('stat-gigs').textContent = '0';
+      updateChecklist(0);
+      return;
+    }
+
+    var activeGigs = (gigs || []).filter(function(g) { return g.status === 'active'; });
+    document.getElementById('stat-gigs').textContent = activeGigs.length;
+
+    // Update setup checklist
+    updateChecklist(activeGigs.length, meta);
+
+    // Render gig list
+    var list = document.getElementById('gigs-list');
+    if (!gigs || gigs.length === 0) {
+      list.innerHTML = '<div style="padding:32px 16px;text-align:center;">' +
+        '<div style="font-size:2rem;margin-bottom:12px;">🎨</div>' +
+        '<div style="font-weight:600;color:var(--charcoal);margin-bottom:6px;">No gigs yet</div>' +
+        '<div style="color:var(--muted);font-size:.88rem;margin-bottom:16px)">Create your first gig and start getting orders.</div>' +
+        '<button onclick="location.href=\'create-gig.html\'" style="background:var(--cyan);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;border:none;">+ Create a Gig</button>' +
+        '</div>';
+      return;
+    }
+
+    var html = '';
+    gigs.forEach(function(gig) {
+      var statusClass = gig.status === 'active' ? 's-active' : 's-paused';
+      var statusLabel = gig.status === 'active' ? 'Active' : 'Paused';
+      var price = gig.basic_price ? '$' + Number(gig.basic_price).toLocaleString() : '—';
+      var days = gig.basic_days ? gig.basic_days + ' day delivery' : '';
+      var titleShort = gig.title ? (gig.title.length > 55 ? gig.title.slice(0,55) + '…' : gig.title) : 'Untitled gig';
+
+      html += '<div class="gig-row">' +
+        (gig.cover_image && /^https:\/\//.test(gig.cover_image)
+          ? '<div class="gig-thumb" style="overflow:hidden;background:var(--purple-bg);"><img src="' + escHtml(gig.cover_image) + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+          : '<div class="gig-thumb" style="background:var(--purple-bg);font-size:1.3rem;">🎨</div>') +
+        '<div class="gig-info" style="cursor:pointer" onclick="location.href=\'gig.html?id=' + encodeURIComponent(gig.id) + '\'">' +
+          '<div class="gig-title">' + escHtml(titleShort) + '</div>' +
+          '<div class="gig-meta">' +
+            (price ? '<span>From ' + price + '</span>' : '') +
+            (price && days ? '<span>·</span>' : '') +
+            (days ? '<span>' + escHtml(days) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="gig-status ' + statusClass + '">' + statusLabel + '</span>' +
+        '<div class="gig-actions">' +
+          '<button class="gig-action" title="Edit" onclick="location.href=\'create-gig.html?edit=' + encodeURIComponent(gig.id) + '\'">' +
+            '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '</button>' +
+          '<button class="gig-action" title="' + (gig.status === 'active' ? 'Pause' : 'Activate') + '" onclick="toggleGig(\'' + gig.id + '\',\'' + gig.status + '\')">' +
+            (gig.status === 'active'
+              ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+              : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>'
+            ) +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    });
+    list.innerHTML = html;
+  }
+
+  function updateChecklist(gigCount, meta) {
+    var steps = 1; // account always done
+    var hasProfile = meta && (meta.avatar_url || meta.bio);
+    var hasGig = gigCount > 0;
+
+    if (hasProfile) {
+      steps++;
+      document.getElementById('check-profile').className = 'step-check step-done';
+      document.getElementById('check-profile').textContent = '✓';
+    }
+    if (hasGig) {
+      steps++;
+      var checkGig = document.getElementById('check-gig');
+      checkGig.className = 'step-check step-done';
+      checkGig.textContent = '✓';
+      var action = document.getElementById('check-gig-action');
+      if (action) action.style.display = 'none';
+    }
+
+    var total = 3;
+    var pct = Math.round((steps / total) * 100);
+    document.getElementById('setup-progress').style.width = pct + '%';
+
+    // Hide setup card when 100% done
+    if (pct === 100) {
+      document.getElementById('setup-card').style.display = 'none';
+    }
+  }
+
+  // Seller receives 90% of the gig price (NEXORA keeps a 10% seller fee)
+  function sellerEarn(o) {
+    if (o.seller_earnings !== null && o.seller_earnings !== undefined) return Number(o.seller_earnings);
+    return Math.round(Number(o.price || 0) * 90) / 100;
+  }
+
+  async function loadVerifyStatus(userId) {
+    var { data: p } = await supa.from('profiles').select('verified').eq('id', userId).maybeSingle();
+    var ok = !!(p && p.verified);
+    document.getElementById('banner-sub').textContent = ok
+      ? 'You are verified. Your gigs are live for buyers.'
+      : 'Your account is awaiting verification.';
+    document.getElementById('verify-note').style.display = ok ? 'none' : 'block';
+  }
+
+  async function loadSellerOrders(userId) {
+    var { data: orders, error } = await supa
+      .from('orders')
+      .select('id, gig_title, tier, price, seller_earnings, status, delivered_at, created_at')
+      .eq('seller_id', userId)
+      .not('status', 'in', '(pending_payment,payment_failed)')
+      .order('created_at', { ascending: false });
+    if (error || !orders) return;
+
+    var earned = 0, active = [];
+    orders.forEach(function(o) {
+      if (o.status === 'completed') earned += sellerEarn(o);
+      if (o.status === 'active' || o.status === 'in_progress' || o.status === 'delivered') active.push(o);
+    });
+    document.getElementById('stat-earned').textContent = '$' + (earned % 1 === 0 ? earned.toFixed(0) : earned.toFixed(2));
+    document.getElementById('stat-orders').textContent = active.filter(function(o){ return o.status !== 'delivered'; }).length;
+    document.getElementById('stat-views').textContent = active.filter(function(o){ return o.status === 'delivered'; }).length;
+
+    var list = document.getElementById('orders-list');
+    if (!active.length) {
+      list.innerHTML = '<div style="padding:24px 16px; text-align:center; color:var(--muted); font-size:.9rem;">No active orders yet. Orders will appear here once buyers purchase your gigs.</div>';
+      return;
+    }
+    list.innerHTML = active.slice(0, 5).map(function(o) {
+      var st = o.status === 'delivered' ? ['os-review', 'With buyer']
+             : (o.status === 'in_progress' && o.delivered_at) ? ['os-review', 'Revision']
+             : ['os-progress', 'In progress'];
+      var t = String(o.tier || 'basic');
+      return '<div class="order-row" style="cursor:pointer" onclick="location.href=\'seller-orders.html\'">' +
+        '<div class="order-buyer" style="background:var(--purple)">📦</div>' +
+        '<div class="order-info"><div class="order-title">' + escHtml(o.gig_title || 'Gig order') + '</div>' +
+        '<div class="order-meta">' + escHtml(t.charAt(0).toUpperCase() + t.slice(1)) + ' package</div></div>' +
+        '<div class="order-right"><div class="order-amt">$' + sellerEarn(o).toFixed(2) + '</div>' +
+        '<span class="order-status ' + st[0] + '">' + st[1] + '</span></div></div>';
+    }).join('');
+  }
+
+  async function toggleGig(gigId, currentStatus) {
+    var newStatus = currentStatus === 'active' ? 'paused' : 'active';
+    await supa.from('gigs').update({ status: newStatus }).eq('id', gigId);
+    var { data: { user } } = await supa.auth.getUser();
+    loadGigs(user.id, user.user_metadata || {});
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  async function loadUnreadBadge(userId) {
+    var { count } = await supa.from('messages').select('id', { count: 'exact', head: true })
+      .eq('read', false).neq('sender_id', userId);
+    var b = document.getElementById('msg-badge');
+    if (b && count) { b.textContent = count > 99 ? '99+' : count; b.style.display = ''; }
+  }
+
+  async function signOut() {
+    if (supa) await supa.auth.signOut();
+    location.href = 'auth.html';
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Place Order</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --orange: #f59e0b;
+      --purple: #8b5cf6;
+      --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 110px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 56px; display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--off-white); border: 1.5px solid var(--border);
+      color: var(--charcoal); flex-shrink: 0;
+    }
+    .topbar-title { font-size: .95rem; font-weight: 700; color: var(--charcoal); flex: 1; }
+
+    /* STEPS BAR */
+    .steps-bar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; align-items: center; gap: 0;
+    }
+    .step-item { display: flex; align-items: center; flex: 1; }
+    .step-dot {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0;
+      border: 2px solid var(--border); color: var(--muted); background: var(--white);
+      transition: all .2s;
+    }
+    .step-dot.active { background: var(--cyan); border-color: var(--cyan); color: white; }
+    .step-dot.done { background: var(--green); border-color: var(--green); color: white; }
+    .step-label { font-size: .72rem; color: var(--muted); margin-left: 6px; font-weight: 500; white-space: nowrap; }
+    .step-label.active { color: var(--cyan); font-weight: 600; }
+    .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 8px; }
+    .step-line.done { background: var(--green); }
+
+    /* CONTENT */
+    .content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+    /* CARD */
+    .card {
+      background: var(--white); border-radius: 14px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+      font-size: .8rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .card-body { padding: 14px 16px; }
+
+    /* ORDER SUMMARY */
+    .gig-summary { display: flex; gap: 12px; align-items: flex-start; }
+    .gig-thumb-sm {
+      width: 72px; height: 54px; border-radius: 8px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; overflow: hidden;
+    }
+    .gig-thumb-sm img { width: 100%; height: 100%; object-fit: cover; }
+    .gig-meta { flex: 1; min-width: 0; }
+    .gig-title-sm { font-size: .88rem; font-weight: 600; color: var(--charcoal); line-height: 1.3; }
+    .gig-seller-sm { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+    .tier-badge {
+      display: inline-block; margin-top: 5px;
+      padding: 2px 8px; border-radius: 20px; font-size: .72rem; font-weight: 700;
+      background: var(--cyan-light); color: var(--cyan-dark);
+    }
+
+    /* LINE ITEMS */
+    .line-items { display: flex; flex-direction: column; gap: 10px; }
+    .line-item { display: flex; justify-content: space-between; align-items: center; }
+    .line-label { font-size: .85rem; color: var(--muted); }
+    .line-value { font-size: .85rem; font-weight: 600; color: var(--charcoal); }
+    .divider { height: 1px; background: var(--border); margin: 4px 0; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; }
+    .total-label { font-size: .95rem; font-weight: 700; color: var(--charcoal); }
+    .total-price { font-size: 1.2rem; font-weight: 800; color: var(--cyan-dark); }
+
+    /* REQUIREMENTS FORM */
+    .req-label {
+      font-size: .85rem; font-weight: 600; color: var(--charcoal);
+      margin-bottom: 6px; display: block;
+    }
+    .req-textarea {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 10px 12px; font-family: 'Inter', sans-serif;
+      font-size: .88rem; color: var(--charcoal); resize: vertical;
+      min-height: 100px; outline: none; transition: border-color .2s;
+      background: var(--off-white);
+    }
+    .req-textarea:focus { border-color: var(--cyan); background: var(--white); }
+    .req-hint { font-size: .75rem; color: var(--muted); margin-top: 5px; }
+
+    /* TRUST BLOCK */
+    .trust-row {
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .trust-item { display: flex; align-items: flex-start; gap: 10px; }
+    .trust-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .trust-text-wrap { flex: 1; }
+    .trust-title { font-size: .82rem; font-weight: 700; color: var(--charcoal); }
+    .trust-desc { font-size: .76rem; color: var(--muted); margin-top: 1px; line-height: 1.4; }
+
+    /* PAYMENT METHODS */
+    .pay-methods { display: flex; flex-direction: column; gap: 10px; }
+    .pay-method {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 14px; border-radius: 10px;
+      border: 2px solid var(--border); cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .pay-method.selected { border-color: var(--cyan); background: var(--cyan-light); }
+    .pay-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .pay-info { flex: 1; }
+    .pay-name { font-size: .88rem; font-weight: 700; color: var(--charcoal); }
+    .pay-sub { font-size: .75rem; color: var(--muted); margin-top: 1px; }
+    .pay-check {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .7rem; color: white; background: white;
+      transition: all .2s;
+    }
+    .pay-method.selected .pay-check { background: var(--cyan); border-color: var(--cyan); }
+
+    /* BOTTOM BAR */
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 12px 16px 20px; z-index: 200;
+    }
+    .pay-btn {
+      width: 100%; padding: 15px; border-radius: 12px;
+      background: var(--cyan); color: white;
+      font-size: 1rem; font-weight: 700; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: opacity .2s;
+    }
+    .pay-btn:disabled { opacity: .5; }
+    .secure-note {
+      text-align: center; font-size: .72rem; color: var(--muted);
+      margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+
+    /* SPINNER */
+    .spin {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* LOADING / ERROR */
+    .page-center {
+      min-height: 60vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; padding: 32px 16px; text-align: center;
+    }
+    .page-center .icon { font-size: 3rem; }
+    .page-center h3 { font-size: 1.1rem; font-weight: 700; }
+    .page-center p { font-size: .88rem; color: var(--muted); max-width: 280px; line-height: 1.5; }
+    .btn-outline {
+      padding: 10px 22px; border-radius: 10px; font-size: .88rem; font-weight: 700;
+      border: 2px solid var(--cyan); color: var(--cyan); background: none;
+    }
+
+    /* SUCCESS SCREEN */
+    .success-screen {
+      min-height: 80vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; padding: 32px 24px; text-align: center;
+    }
+    .success-icon { font-size: 4rem; }
+    .success-screen h2 { font-size: 1.4rem; font-weight: 800; color: var(--charcoal); }
+    .success-screen p { font-size: .9rem; color: var(--muted); line-height: 1.6; max-width: 300px; }
+    .btn-solid {
+      padding: 14px 32px; border-radius: 12px; font-size: .95rem; font-weight: 700;
+      background: var(--cyan); color: white;
+    }
+    .btn-ghost {
+      padding: 12px 24px; border-radius: 12px; font-size: .88rem; font-weight: 600;
+      border: 2px solid var(--border); color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <button class="back-btn" onclick="history.back()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+  </button>
+  <div class="topbar-title">Place Order</div>
+</div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar">
+  <div class="step-item">
+    <div class="step-dot active" id="dot1">1</div>
+    <span class="step-label active" id="lbl1">Review</span>
+  </div>
+  <div class="step-line" id="line1"></div>
+  <div class="step-item">
+    <div class="step-dot" id="dot2">2</div>
+    <span class="step-label" id="lbl2">Requirements</span>
+  </div>
+  <div class="step-line" id="line2"></div>
+  <div class="step-item">
+    <div class="step-dot" id="dot3">3</div>
+    <span class="step-label" id="lbl3">Payment</span>
+  </div>
+</div>
+
+<div id="mainContent"></div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottomBar" style="display:none;">
+  <button class="pay-btn" id="mainBtn" onclick="handleMainBtn()">Continue</button>
+  <div class="secure-note">🔒 Secured by escrow — funds released only on delivery</div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  // >>> PASTE YOUR FLUTTERWAVE PUBLIC KEY BETWEEN THE QUOTES (starts with FLWPUBK) <<<
+  var FLW_PUBLIC_KEY = 'FLUTTERWAVE_PUBLIC_KEY_HERE';
+
+  var supa, user;
+  var orderData = null;    // from sessionStorage
+  var gig = null;          // from Supabase
+  var currentStep = 1;     // 1=Review, 2=Requirements, 3=Payment
+  var requirements = '';
+  var selectedPayMethod = 'card';
+
+  // Service fee percent
+  var SERVICE_FEE_PCT = 0.05; // 5%
+
+  // ── INIT ─────────────────────────────────────────────────────────────
+  (async function init() {
+    // Load Supabase
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    script.onload = async function() {
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      // Auth check
+      var { data: { session } } = await supa.auth.getSession();
+      if (!session) {
+        window.location.href = 'auth.html?next=order.html';
+        return;
+      }
+      user = session.user;
+
+      // Read order intent from sessionStorage
+      try {
+        var raw = sessionStorage.getItem('nexora_order');
+        if (raw) orderData = JSON.parse(raw);
+        // gig.html sends 'std' / 'prem' — normalise to full tier names
+        if (orderData) {
+          var t = String(orderData.tier || 'basic').toLowerCase();
+          orderData.tier = (t === 'std' || t === 'standard') ? 'standard'
+                         : (t === 'prem' || t === 'premium') ? 'premium' : 'basic';
+        }
+      } catch(e) {}
+
+      if (!orderData || !orderData.gigId) {
+        showError('No order data found. Please go back and select a package.');
+        return;
+      }
+
+      // Load gig from Supabase
+      var { data, error } = await supa
+        .from('gigs')
+        .select('*')
+        .eq('id', orderData.gigId)
+        .single();
+
+      if (error || !data) {
+        showError('Could not load gig details. Please try again.');
+        return;
+      }
+      gig = data;
+
+      renderStep(1);
+    };
+    document.head.appendChild(script);
+  })();
+
+  // ── HELPERS ───────────────────────────────────────────────────────────
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function getPrice() {
+    var tier = orderData ? orderData.tier : 'basic';
+    if (!gig) return 0;
+    if (tier === 'premium' && gig.prem_price) return Number(gig.prem_price);
+    if (tier === 'standard' && gig.std_price) return Number(gig.std_price);
+    return Number(gig.basic_price) || 0;
+  }
+
+  function getDays() {
+    var tier = orderData ? orderData.tier : 'basic';
+    if (!gig) return 1;
+    if (tier === 'premium' && gig.prem_days) return Number(gig.prem_days);
+    if (tier === 'standard' && gig.std_days) return Number(gig.std_days);
+    return Number(gig.basic_days) || 3;
+  }
+
+  function getDelivery() {
+    var d = getDays();
+    return d === 1 ? '1 day' : d + ' days';
+  }
+
+  function fmtPrice(n) {
+    return '$' + Number(n).toFixed(2);
+  }
+
+  function getCatEmoji(cat) {
+    var map = { design:'🎨', development:'💻', writing:'✍️', video:'🎬', marketing:'📣', music:'🎵', photography:'📷', business:'💼' };
+    var lower = (cat||'').toLowerCase();
+    var keys = Object.keys(map);
+    for (var i=0; i<keys.length; i++) {
+      if (lower.indexOf(keys[i]) !== -1) return map[keys[i]];
+    }
+    return '💼';
+  }
+
+  function getCatBg(cat) {
+    var map = { design:'#f5f3ff', development:'#f0f9ff', writing:'#fefce8', video:'#fff7ed', marketing:'#fff1f2', music:'#fdf4ff', photography:'#f0fdf4', business:'#f8fafc' };
+    var lower = (cat||'').toLowerCase();
+    var keys = Object.keys(map);
+    for (var i=0; i<keys.length; i++) {
+      if (lower.indexOf(keys[i]) !== -1) return map[keys[i]];
+    }
+    return '#f8fafc';
+  }
+
+  function initials(name) {
+    if (!name) return '?';
+    var parts = name.trim().split(' ');
+    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  }
+
+  function avatarColor(name) {
+    var colors = ['#0ea5e9','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899'];
+    var i = 0;
+    if (name) { for (var c=0; c<name.length; c++) i += name.charCodeAt(c); }
+    return colors[i % colors.length];
+  }
+
+  // ── STEP INDICATOR ────────────────────────────────────────────────────
+  function updateStepBar(step) {
+    for (var i=1; i<=3; i++) {
+      var dot = document.getElementById('dot'+i);
+      var lbl = document.getElementById('lbl'+i);
+      dot.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+      dot.textContent = i < step ? '✓' : i;
+      lbl.className = 'step-label' + (i === step ? ' active' : '');
+    }
+    var line1 = document.getElementById('line1');
+    var line2 = document.getElementById('line2');
+    if (line1) line1.className = 'step-line' + (step > 1 ? ' done' : '');
+    if (line2) line2.className = 'step-line' + (step > 2 ? ' done' : '');
+  }
+
+  // ── RENDER STEPS ──────────────────────────────────────────────────────
+  function renderStep(step) {
+    currentStep = step;
+    updateStepBar(step);
+    var mc = document.getElementById('mainContent');
+    var bb = document.getElementById('bottomBar');
+    var btn = document.getElementById('mainBtn');
+
+    if (step === 1) {
+      btn.textContent = 'Continue to Requirements';
+      bb.style.display = '';
+      mc.innerHTML = renderReview();
+    } else if (step === 2) {
+      btn.textContent = 'Continue to Payment';
+      bb.style.display = '';
+      mc.innerHTML = renderRequirements();
+    } else if (step === 3) {
+      btn.textContent = 'Pay ' + fmtPrice(getTotal());
+      bb.style.display = '';
+      mc.innerHTML = renderPayment();
+    }
+  }
+
+  function getTotal() {
+    var price = getPrice();
+    var fee = price * SERVICE_FEE_PCT;
+    return price + fee;
+  }
+
+  // ── STEP 1: REVIEW ────────────────────────────────────────────────────
+  function renderReview() {
+    var price = getPrice();
+    var fee = price * SERVICE_FEE_PCT;
+    var total = price + fee;
+    var tier = (orderData.tier || 'basic');
+    var tierLabel = tier.charAt(0).toUpperCase() + tier.slice(1);
+    var emoji = getCatEmoji(gig.category);
+    var bg = getCatBg(gig.category);
+    var thumbHtml = gig.cover_image
+      ? '<img src="' + escHtml(gig.cover_image) + '" alt="">'
+      : emoji;
+
+    return '<div class="content">' +
+      // GIG SUMMARY
+      '<div class="card">' +
+        '<div class="card-header">Order Summary</div>' +
+        '<div class="card-body">' +
+          '<div class="gig-summary">' +
+            '<div class="gig-thumb-sm" style="background:' + bg + ';">' + thumbHtml + '</div>' +
+            '<div class="gig-meta">' +
+              '<div class="gig-title-sm">' + escHtml(gig.title) + '</div>' +
+              '<div class="gig-seller-sm">by ' + escHtml(gig.seller_name || 'Seller') + '</div>' +
+              '<span class="tier-badge">' + tierLabel + ' Package</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // PRICE BREAKDOWN
+      '<div class="card">' +
+        '<div class="card-header">Price Breakdown</div>' +
+        '<div class="card-body">' +
+          '<div class="line-items">' +
+            '<div class="line-item"><span class="line-label">' + tierLabel + ' Package</span><span class="line-value">' + fmtPrice(price) + '</span></div>' +
+            '<div class="line-item"><span class="line-label">Delivery</span><span class="line-value">⏱ ' + escHtml(getDelivery()) + '</span></div>' +
+            '<div class="line-item"><span class="line-label">Service fee (5%)</span><span class="line-value">' + fmtPrice(fee) + '</span></div>' +
+            '<div class="divider"></div>' +
+            '<div class="total-row"><span class="total-label">Total</span><span class="total-price">' + fmtPrice(total) + '</span></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // WHAT'S INCLUDED
+      '<div class="card">' +
+        '<div class="card-header">What\'s Included</div>' +
+        '<div class="card-body">' +
+          '<div class="line-items">' +
+            (gig.basic_features ? gig.basic_features.split('\n').map(function(f){ return f.trim(); }).filter(Boolean).map(function(f){ return '<div class="line-item"><span class="line-label">✅ ' + escHtml(f) + '</span></div>'; }).join('') : '<div class="line-item"><span class="line-label" style="color:var(--muted)">See gig details</span></div>') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // TRUST
+      '<div class="card">' +
+        '<div class="card-body">' +
+          '<div class="trust-row">' +
+            '<div class="trust-item">' +
+              '<div class="trust-icon" style="background:#f0fdf4;">🛡️</div>' +
+              '<div class="trust-text-wrap"><div class="trust-title">Escrow Protection</div><div class="trust-desc">Your payment is held securely and only released when you approve the delivery.</div></div>' +
+            '</div>' +
+            '<div class="trust-item">' +
+              '<div class="trust-icon" style="background:#f0f9ff;">🔄</div>' +
+              '<div class="trust-text-wrap"><div class="trust-title">Revision Policy</div><div class="trust-desc">Request changes if the work doesn\'t meet your requirements.</div></div>' +
+            '</div>' +
+            '<div class="trust-item">' +
+              '<div class="trust-icon" style="background:#fefce8;">⚡</div>' +
+              '<div class="trust-text-wrap"><div class="trust-title">On-Time Delivery</div><div class="trust-desc">Delivery guaranteed within ' + escHtml(getDelivery()) + '. Late? You get a refund.</div></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // ── STEP 2: REQUIREMENTS ──────────────────────────────────────────────
+  function renderRequirements() {
+    var reqs = [];
+    try {
+      if (gig.requirements) {
+        reqs = gig.requirements.split('\n').map(function(r){ return r.trim(); }).filter(Boolean);
+      }
+    } catch(e) {}
+
+    var reqItems = reqs.length > 0
+      ? '<div style="margin-bottom:14px;"><div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">What the seller needs from you:</div>' +
+          reqs.map(function(r,i){ return '<div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;"><span style="color:var(--cyan);font-weight:700;flex-shrink:0;">' + (i+1) + '.</span><span style="font-size:.85rem;color:var(--slate);">' + escHtml(r) + '</span></div>'; }).join('') +
+        '</div>'
+      : '';
+
+    return '<div class="content">' +
+      '<div class="card">' +
+        '<div class="card-header">Your Requirements</div>' +
+        '<div class="card-body">' +
+          reqItems +
+          '<label class="req-label">Describe what you need</label>' +
+          '<textarea class="req-textarea" id="reqTextarea" placeholder="Be as detailed as possible — style, colors, tone, target audience, examples you like…" oninput="requirements=this.value">' + escHtml(requirements) + '</textarea>' +
+          '<div class="req-hint">💡 The more detail you give, the better the result. You can also attach files after placing the order.</div>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="card">' +
+        '<div class="card-body" style="font-size:.82rem;color:var(--muted);line-height:1.6;">' +
+          '📋 Your requirements are sent to the seller after payment. The delivery clock starts once the seller accepts your order.' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // ── STEP 3: PAYMENT ───────────────────────────────────────────────────
+  function renderPayment() {
+    var total = getTotal();
+    return '<div class="content">' +
+      // AMOUNT DUE
+      '<div class="card">' +
+        '<div class="card-header">Amount Due</div>' +
+        '<div class="card-body" style="text-align:center;padding:20px 16px;">' +
+          '<div style="font-size:2rem;font-weight:800;color:var(--cyan-dark);">' + fmtPrice(total) + '</div>' +
+          '<div style="font-size:.8rem;color:var(--muted);margin-top:4px;">Includes 5% service fee · Held in escrow</div>' +
+        '</div>' +
+      '</div>' +
+
+      // PAYMENT METHOD
+      '<div class="card">' +
+        '<div class="card-header">Payment Method</div>' +
+        '<div class="card-body">' +
+          '<div class="pay-methods">' +
+            '<div class="pay-method selected" id="pm-card" onclick="selectPay(\'card\')">' +
+              '<div class="pay-icon">💳</div>' +
+              '<div class="pay-info"><div class="pay-name">Card / Bank Transfer</div><div class="pay-sub">Visa, Mastercard, bank transfer</div></div>' +
+              '<div class="pay-check" id="pc-card">✓</div>' +
+            '</div>' +
+            '<div class="pay-method" id="pm-ussd" onclick="selectPay(\'ussd\')">' +
+              '<div class="pay-icon">📱</div>' +
+              '<div class="pay-info"><div class="pay-name">Mobile Money / USSD</div><div class="pay-sub">Pay instantly from your mobile wallet</div></div>' +
+              '<div class="pay-check" id="pc-ussd"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+
+      // SECURITY NOTE
+      '<div class="card">' +
+        '<div class="card-body">' +
+          '<div class="trust-row">' +
+            '<div class="trust-item">' +
+              '<div class="trust-icon" style="background:#f0fdf4;">🔒</div>' +
+              '<div class="trust-text-wrap"><div class="trust-title">Secure Checkout</div><div class="trust-desc">Your payment details are encrypted. We never store card numbers.</div></div>' +
+            '</div>' +
+            '<div class="trust-item">' +
+              '<div class="trust-icon" style="background:#f5f3ff;">🛡️</div>' +
+              '<div class="trust-text-wrap"><div class="trust-title">Buyer Protection</div><div class="trust-desc">Funds held in escrow until you confirm delivery. Full refund if seller fails to deliver.</div></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // ── SELECT PAYMENT ────────────────────────────────────────────────────
+  function selectPay(method) {
+    selectedPayMethod = method;
+    ['card','ussd'].forEach(function(m) {
+      document.getElementById('pm-'+m).className = 'pay-method' + (m === method ? ' selected' : '');
+      var chk = document.getElementById('pc-'+m);
+      if (chk) chk.textContent = m === method ? '✓' : '';
+    });
+  }
+
+  // ── MAIN BUTTON HANDLER ───────────────────────────────────────────────
+  function handleMainBtn() {
+    if (currentStep === 1) {
+      renderStep(2);
+      window.scrollTo(0, 0);
+    } else if (currentStep === 2) {
+      var txt = document.getElementById('reqTextarea');
+      if (txt) requirements = txt.value.trim();
+      if (!requirements) {
+        txt.focus();
+        txt.style.borderColor = 'var(--red)';
+        setTimeout(function(){ txt.style.borderColor = ''; }, 2000);
+        return;
+      }
+      renderStep(3);
+      window.scrollTo(0, 0);
+    } else if (currentStep === 3) {
+      startPayment();
+    }
+  }
+
+  function showPaymentsPending() {
+    if (document.getElementById('payPending')) return;
+    var o = document.createElement('div');
+    o.id = 'payPending';
+    o.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:flex;align-items:flex-end;';
+    o.innerHTML =
+      '<div style="background:#fff;width:100%;border-radius:20px 20px 0 0;padding:22px 20px 32px;text-align:center;">' +
+        '<div style="font-size:2.4rem;margin-bottom:8px;">🔒</div>' +
+        '<h3 style="font-size:1.05rem;font-weight:700;margin-bottom:8px;color:#1e293b;">Checkout opens soon</h3>' +
+        '<p style="font-size:.86rem;color:#64748b;line-height:1.55;margin-bottom:18px;">Secure escrow payments are being set up. You have not been charged and no order was created. You can message the seller in the meantime.</p>' +
+        '<button onclick="document.getElementById(\'payPending\').remove()" style="width:100%;padding:13px;border-radius:10px;background:#0ea5e9;color:#fff;font-weight:700;font-size:.92rem;">OK</button>' +
+      '</div>';
+    o.addEventListener('click', function(e) { if (e.target === o) o.remove(); });
+    document.body.appendChild(o);
+  }
+
+  // ── PAYMENT VIA FLUTTERWAVE ───────────────────────────────────────────
+  async function startPayment() {
+    var btn = document.getElementById('mainBtn');
+
+    // Payments not connected yet: stop before creating an order
+    if (!/^FLWPUBK/.test(FLW_PUBLIC_KEY)) {
+      showPaymentsPending();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Processing…';
+
+    // Save order to DB first
+    var price = getPrice();
+    var fee = price * SERVICE_FEE_PCT;
+    var total = price + fee;
+    var txRef = 'NXR-' + Date.now() + '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+
+    // Insert pending order record
+    var { data: orderRecord, error: orderErr } = await supa.from('orders').insert({
+      buyer_id: user.id,
+      buyer_email: user.email,
+      seller_id: gig.seller_id,
+      gig_id: gig.id,
+      gig_title: gig.title,
+      tier: orderData.tier || 'basic',
+      price: price,
+      service_fee: fee,
+      total: total,
+      currency: 'USD',
+      requirements: requirements,
+      status: 'pending_payment',
+      tx_ref: txRef,
+    }).select().single();
+
+    if (orderErr) {
+      btn.disabled = false;
+      btn.textContent = 'Pay ' + fmtPrice(total);
+      alert('Could not create order: ' + orderErr.message);
+      return;
+    }
+
+    // Load Flutterwave SDK
+    var fw = document.createElement('script');
+    fw.src = 'https://checkout.flutterwave.com/v3.js';
+    fw.onload = function() {
+      FlutterwaveCheckout({
+        public_key: FLW_PUBLIC_KEY,
+        tx_ref: txRef,
+        amount: total,
+        currency: 'USD',
+        payment_options: selectedPayMethod === 'ussd' ? 'ussd,mobilemoneyghana,mobilemoneyuganda' : 'card,banktransfer',
+        customer: {
+          email: user.email,
+          name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email,
+        },
+        meta: {
+          order_id: orderRecord.id,
+          gig_id: gig.id,
+          seller_id: gig.seller_id,
+          tier: orderData.tier || 'basic',
+        },
+        customizations: {
+          title: 'NEXORA',
+          description: gig.title,
+        },
+        callback: async function(response) {
+          if (response.status === 'successful' || response.status === 'completed') {
+            // Update order status
+            await supa.from('orders').update({
+              status: 'active',
+              flw_transaction_id: String(response.transaction_id),
+              paid_at: new Date().toISOString(),
+            }).eq('id', orderRecord.id);
+
+            // Clear session order data
+            sessionStorage.removeItem('nexora_order');
+
+            // Show success
+            showSuccess(orderRecord.id);
+          } else {
+            await supa.from('orders').update({ status: 'payment_failed' }).eq('id', orderRecord.id);
+            btn.disabled = false;
+            btn.textContent = 'Pay ' + fmtPrice(total);
+            alert('Payment was not completed. Please try again.');
+          }
+        },
+        onclose: function() {
+          btn.disabled = false;
+          btn.textContent = 'Pay ' + fmtPrice(total);
+        },
+      });
+    };
+    document.head.appendChild(fw);
+  }
+
+  // ── SUCCESS SCREEN ────────────────────────────────────────────────────
+  function showSuccess(orderId) {
+    document.getElementById('bottomBar').style.display = 'none';
+    // Hide steps bar
+    document.querySelector('.steps-bar').style.display = 'none';
+    document.getElementById('mainContent').innerHTML =
+      '<div class="success-screen">' +
+        '<div class="success-icon">🎉</div>' +
+        '<h2>Order Placed!</h2>' +
+        '<p>Your payment is secured in escrow. The seller will start working on your order shortly.</p>' +
+        '<div style="background:var(--green-bg);border:1.5px solid #bbf7d0;border-radius:12px;padding:14px 16px;width:100%;text-align:left;margin:8px 0;">' +
+          '<div style="font-size:.8rem;font-weight:700;color:var(--green);margin-bottom:6px;">✅ What happens next</div>' +
+          '<div style="font-size:.82rem;color:var(--slate);line-height:1.6;">' +
+            '1. Seller reviews your requirements<br>' +
+            '2. Work starts within 24 hours<br>' +
+            '3. Delivery in ' + escHtml(getDelivery()) + '<br>' +
+            '4. You review and approve delivery<br>' +
+            '5. Payment released to seller' +
+          '</div>' +
+        '</div>' +
+        '<button class="btn-solid" onclick="window.location.href=\'orders.html\'">View My Orders</button>' +
+        '<button class="btn-ghost" onclick="window.location.href=\'browse.html\'">Browse More Gigs</button>' +
+      '</div>';
+  }
+
+  // ── ERROR SCREEN ──────────────────────────────────────────────────────
+  function showError(msg) {
+    document.getElementById('bottomBar').style.display = 'none';
+    document.getElementById('mainContent').innerHTML =
+      '<div class="page-center">' +
+        '<div class="icon">😕</div>' +
+        '<h3>Something went wrong</h3>' +
+        '<p>' + escHtml(msg) + '</p>' +
+        '<button class="btn-outline" onclick="history.back()">Go Back</button>' +
+      '</div>';
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

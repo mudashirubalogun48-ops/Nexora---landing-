@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA — Choose your role</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9; --cyan-dark: #0284c7;
+      --charcoal: #1e293b; --muted: #64748b;
+      --border: #e2e8f0; --off-white: #f8fafc; --white: #ffffff;
+      --purple: #8b5cf6; --purple-bg: #f5f3ff;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--off-white); color: var(--charcoal);
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      height: 60px; display: flex; align-items: center; padding: 0 20px;
+    }
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em;
+    }
+    .logo span {
+      display: inline-block; width: 7px; height: 7px;
+      background: var(--cyan); border-radius: 50%;
+      margin-left: 2px; vertical-align: middle; margin-bottom: 3px;
+    }
+    .page {
+      flex: 1; display: flex; align-items: center;
+      justify-content: center; padding: 32px 16px;
+    }
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 20px; width: 100%; max-width: 400px;
+      padding: 32px 24px; box-shadow: 0 4px 32px rgba(0,0,0,.07);
+      text-align: center;
+    }
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .sub { font-size: .875rem; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+    .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .role {
+      border: 2px solid var(--border); border-radius: 14px;
+      padding: 20px 12px; background: var(--white);
+      transition: border-color .2s, background .2s; cursor: pointer;
+    }
+    .role:hover { border-color: var(--cyan); background: #f0f9ff; }
+    .role.on { border-color: var(--cyan); background: #f0f9ff; }
+    .role-icon { font-size: 2rem; margin-bottom: 10px; }
+    .role-label { display: block; font-size: .875rem; font-weight: 700; color: var(--charcoal); }
+    .role-desc { display: block; font-size: .75rem; color: var(--muted); margin-top: 4px; }
+    .alert {
+      border-radius: 6px; padding: 10px 14px; font-size: .83rem;
+      margin-bottom: 14px; display: none; line-height: 1.4;
+    }
+    .alert.err { display: block; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+    .alert.ok  { display: block; background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; }
+    .btn {
+      width: 100%; background: var(--cyan); color: white;
+      border-radius: 8px; padding: 14px 0;
+      font-size: .95rem; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: background .2s;
+      box-shadow: 0 4px 14px rgba(14,165,233,.3);
+    }
+    .btn:hover { background: var(--cyan-dark); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin {
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.4); border-top-color: white;
+      border-radius: 50%; animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <span class="logo">NEXORA<span></span></span>
+</nav>
+<main class="page">
+  <div class="card">
+    <h1>How will you use NEXORA?</h1>
+    <p class="sub">Pick your role — you can only choose one.</p>
+
+    <div class="alert" id="alert"></div>
+
+    <div class="roles">
+      <button type="button" class="role on" id="r-buyer" onclick="pick('buyer')">
+        <div class="role-icon">🛍️</div>
+        <span class="role-label">I want to hire</span>
+        <span class="role-desc">Find &amp; pay for services</span>
+      </button>
+      <button type="button" class="role" id="r-seller" onclick="pick('seller')">
+        <div class="role-icon">💼</div>
+        <span class="role-label">I want to work</span>
+        <span class="role-desc">Sell your skills</span>
+      </button>
+    </div>
+
+    <button class="btn" id="confirm-btn" onclick="confirmRole()">Continue</button>
+  </div>
+</main>
+
+<script>
+  var chosen = 'buyer';
+  function pick(r) {
+    chosen = r;
+    document.getElementById('r-buyer').className  = 'role' + (r === 'buyer'  ? ' on' : '');
+    document.getElementById('r-seller').className = 'role' + (r === 'seller' ? ' on' : '');
+  }
+
+  function showMsg(text, type) {
+    var a = document.getElementById('alert');
+    a.textContent = text; a.className = 'alert ' + type;
+  }
+
+  var supa;
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  s.onload = function() {
+    supa = window.supabase.createClient(
+      'https://tzzhbzaxoodxbcezcynw.supabase.co',
+      'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX'
+    );
+    /* check session */
+    supa.auth.getSession().then(function(res) {
+      if (!res.data.session) { location.href = 'auth.html'; }
+    });
+  };
+  document.head.appendChild(s);
+
+  async function confirmRole() {
+    if (!supa) { showMsg('Still loading, try again.', 'err'); return; }
+    var { data: { session } } = await supa.auth.getSession();
+    if (!session) { location.href = 'auth.html'; return; }
+
+    var btn = document.getElementById('confirm-btn');
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Saving…';
+
+    var res = await supa.auth.updateUser({ data: { role: chosen } });
+    btn.disabled = false; btn.textContent = 'Continue';
+
+    if (res.error) { showMsg(res.error.message, 'err'); return; }
+
+    location.href = chosen === 'seller' ? 'seller-dashboard.html' : 'buyer-dashboard.html';
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>

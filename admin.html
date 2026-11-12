@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>NEXORA — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #0ea5e9;
+      --cyan-dark: #0284c7;
+      --cyan-light: #f0f9ff;
+      --charcoal: #1e293b;
+      --slate: #334155;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --off-white: #f8fafc;
+      --white: #ffffff;
+      --green: #10b981;
+      --green-bg: #f0fdf4;
+      --green-border: #bbf7d0;
+      --orange: #f59e0b;
+      --orange-bg: #fffbeb;
+      --orange-border: #fde68a;
+      --purple: #8b5cf6;
+      --purple-bg: #f5f3ff;
+      --red: #ef4444;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--off-white); color: var(--charcoal); min-height: 100vh; padding-bottom: 76px; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    .topbar {
+      background: var(--charcoal); color: white; height: 56px;
+      display: flex; align-items: center; gap: 10px; padding: 0 16px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .admin-tag { font-size: .66rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--cyan); padding: 3px 8px; border-radius: 6px; }
+    .topbar .exit { margin-left: auto; font-size: .78rem; font-weight: 600; opacity: .8; }
+
+    .wrap { max-width: 760px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .section-title { font-size: 1.05rem; font-weight: 700; margin: 4px 2px 0; }
+    .sub { font-size: .8rem; color: var(--muted); line-height: 1.5; margin: -4px 2px 2px; }
+
+    /* STATS */
+    .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .stat .v { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 800; }
+    .stat .l { font-size: .72rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+    .stat.alert { background: var(--orange-bg); border-color: var(--orange-border); }
+    .stat.alert .v { color: #b45309; }
+    .stat button { margin-top: 6px; font-size: .74rem; font-weight: 700; color: var(--cyan-dark); }
+
+    /* FILTERS */
+    .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex-shrink: 0; padding: 7px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--white); font-size: .78rem; font-weight: 600; color: var(--slate); }
+    .chip.on { background: var(--charcoal); border-color: var(--charcoal); color: white; }
+    .search { width: 100%; padding: 11px 12px; border-radius: 10px; border: 1.5px solid var(--border); font-family: inherit; font-size: .88rem; background: var(--white); }
+    .search:focus { outline: none; border-color: var(--cyan); }
+
+    /* CARDS */
+    .item { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .item.hot { border-color: var(--orange-border); box-shadow: 0 0 0 3px var(--orange-bg); }
+    .item-top { display: flex; gap: 12px; padding: 14px 14px 10px; align-items: flex-start; }
+    .av { width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: .9rem; }
+    .av img, .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .thumb { width: 56px; height: 44px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: var(--off-white); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .meta { flex: 1; min-width: 0; }
+    .t { font-weight: 700; font-size: .9rem; line-height: 1.3; word-break: break-word; }
+    .s { font-size: .74rem; color: var(--muted); margin-top: 3px; line-height: 1.45; word-break: break-word; }
+    .pill { font-size: .68rem; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .p-ok { background: var(--green-bg); color: #047857; }
+    .p-wait { background: var(--orange-bg); color: #b45309; }
+    .p-blue { background: var(--cyan-light); color: var(--cyan-dark); }
+    .p-purple { background: var(--purple-bg); color: var(--purple); }
+    .p-red { background: var(--red-bg); color: var(--red); }
+    .p-grey { background: var(--off-white); color: var(--muted); border: 1px solid var(--border); }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; }
+    .check { font-size: .7rem; font-weight: 600; padding: 3px 8px; border-radius: 6px; }
+    .check.yes { background: var(--green-bg); color: #047857; }
+    .check.no { background: var(--red-bg); color: var(--red); }
+
+    .box { margin: 0 14px 10px; padding: 10px 12px; border-radius: 10px; font-size: .8rem; line-height: 1.55; white-space: pre-wrap; word-break: break-word; background: var(--off-white); border: 1px solid var(--border); color: var(--slate); }
+    .box.warn { background: var(--orange-bg); border-color: var(--orange-border); color: #92400e; }
+    .box b { display: block; font-size: .66rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 3px; white-space: normal; }
+    .box a { color: var(--cyan-dark); word-break: break-all; }
+
+    .acts { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 12px; border-top: 1px solid var(--border); align-items: center; }
+    .acts .money { margin-right: auto; font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: .95rem; }
+    .btn { padding: 8px 12px; border-radius: 8px; font-size: .78rem; font-weight: 700; }
+    .btn-green { background: var(--green); color: white; }
+    .btn-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .btn-ghost { border: 1.5px solid var(--border); color: var(--slate); background: var(--white); }
+    .btn-dark { background: var(--charcoal); color: white; }
+
+    .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: .86rem; background: var(--white); border: 1px dashed var(--border); border-radius: 12px; }
+    .state { padding: 72px 24px; text-align: center; }
+    .state .ic { font-size: 2.6rem; margin-bottom: 10px; }
+    .state h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .state p { font-size: .86rem; color: var(--muted); line-height: 1.5; margin-bottom: 16px; }
+    .state a { display: inline-block; padding: 11px 20px; border-radius: 10px; background: var(--cyan); color: white; font-weight: 700; font-size: .88rem; }
+    .spin { width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--cyan); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 10px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* BOTTOM TABS */
+    .tabs { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 200; }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 2px 10px; font-size: .64rem; font-weight: 600; color: var(--muted); position: relative; }
+    .tab.on { color: var(--charcoal); }
+    .tab .ico { font-size: 1.15rem; line-height: 1.2; }
+    .tab .dot { position: absolute; top: 5px; left: 50%; margin-left: 8px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--orange); color: white; font-size: .6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+    /* MODAL */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 300; display: none; align-items: flex-end; }
+    .modal { background: var(--white); width: 100%; border-radius: 20px 20px 0 0; padding: 20px 20px 28px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal p { font-size: .82rem; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .modal label { display: block; font-size: .76rem; font-weight: 700; color: var(--slate); margin-bottom: 6px; }
+    .modal textarea { width: 100%; min-height: 90px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--border); font-family: inherit; font-size: .88rem; resize: vertical; }
+    .modal textarea:focus { outline: none; border-color: var(--cyan); }
+    .modal .err { font-size: .76rem; color: var(--red); margin-top: 6px; display: none; }
+    .modal .row { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+    .modal .row button { padding: 13px; border-radius: 10px; font-size: .9rem; font-weight: 700; width: 100%; }
+    .modal .row button:disabled { opacity: .6; }
+
+    .toast { position: fixed; bottom: 86px; left: 16px; right: 16px; text-align: center; background: var(--charcoal); color: white; padding: 11px 16px; border-radius: 10px; font-size: .84rem; font-weight: 600; z-index: 500; }
+
+    @media (min-width: 640px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">NEXORA</span>
+  <span class="admin-tag">Admin</span>
+  <a class="exit" href="index.html">Exit</a>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="state"><div class="spin"></div>Checking access…</div>
+</div>
+
+<nav class="tabs" id="tabs" style="display:none">
+  <button class="tab on" data-tab="overview" onclick="showTab('overview')"><span class="ico">📊</span>Overview</button>
+  <button class="tab" data-tab="sellers" onclick="showTab('sellers')"><span class="ico">🧑‍💼</span>Sellers<span class="dot" id="dotSellers" style="display:none"></span></button>
+  <button class="tab" data-tab="orders" onclick="showTab('orders')"><span class="ico">📦</span>Orders<span class="dot" id="dotOrders" style="display:none"></span></button>
+  <button class="tab" data-tab="gigs" onclick="showTab('gigs')"><span class="ico">🗂️</span>Gigs</button>
+</nav>
+
+<div class="overlay" id="overlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="mTitle"></h3>
+    <p id="mText"></p>
+    <div id="mNoteWrap">
+      <label for="mNote" id="mNoteLabel">Note</label>
+      <textarea id="mNote" maxlength="1000"></textarea>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="row">
+      <button id="mOk" onclick="confirmModal()">Confirm</button>
+      <button style="border:1.5px solid var(--border);color:var(--muted);" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://tzzhbzaxoodxbcezcynw.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
+
+  var supa, me;
+  var data = { profiles: [], gigs: [], orders: [] };
+  var tab = 'overview';
+  var orderFilter = 'disputed';
+  var sellerFilter = 'pending';
+  var gigFilter = 'active';
+  var query = '';
+  var pending = null;   // action waiting for confirmation
+
+  var STATUS = {
+    pending_payment: ['Awaiting payment', 'p-grey'], payment_failed: ['Payment failed', 'p-red'],
+    active: ['In progress', 'p-blue'], in_progress: ['In progress', 'p-blue'],
+    delivered: ['Delivered', 'p-purple'], completed: ['Completed', 'p-ok'],
+    cancelled: ['Cancelled', 'p-red'], disputed: ['Disputed', 'p-wait']
+  };
+  var CAT_LABELS = {
+    'programming': 'Programming & Tech', 'graphic-design': 'Graphics & Design', 'digital-marketing': 'Digital Marketing',
+    'content-writing': 'Writing & Translation', 'video-animation': 'Video & Animation', 'ai-services': 'AI Services',
+    'music-audio': 'Music & Audio', 'business': 'Business', 'consulting': 'Consulting'
+  };
+  var COLORS = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#14b8a6'];
+
+  // ── ACCESS CHECK ──────────────────────────────────────────────────────
+  (function init() {
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.onload = async function() {
+      supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      var { data: { session } } = await supa.auth.getSession();
+      if (!session) { location.href = 'auth.html?mode=login&next=admin.html'; return; }
+      me = session.user;
+      // The page only shows if you're on the admins list.
+      // The database itself also refuses admin actions from anyone else.
+      var { data: rows } = await supa.from('admins').select('user_id').eq('user_id', me.id).limit(1);
+      if (!rows || !rows.length) {
+        return state('🔒', 'Admins only', 'This page is for NEXORA staff. If you are the owner, add your account to the admins list in the SQL Editor first.', 'index.html', 'Go to homepage');
+      }
+      document.getElementById('tabs').style.display = 'flex';
+      await loadAll();
+      var t = new URLSearchParams(location.search).get('tab');
+      showTab(['sellers', 'orders', 'gigs'].indexOf(t) !== -1 ? t : 'overview');
+    };
+    s.onerror = function() { state('📡', 'Could not connect', 'Check your internet connection and refresh.'); };
+    document.head.appendChild(s);
+  })();
+
+  async function loadAll() {
+    var r = await Promise.all([
+      supa.from('profiles').select('id, full_name, role, avatar_url, headline, bio, skills, verified, created_at').order('created_at', { ascending: false }).limit(1000),
+      supa.from('gigs').select('id, seller_id, seller_name, title, category, basic_price, basic_days, std_days, prem_days, status, cover_image, created_at').order('created_at', { ascending: false }).limit(1000),
+      supa.from('orders').select('*').order('created_at', { ascending: false }).limit(1000)
+    ]);
+    var err = r.map(function(x) { return x.error && x.error.message; }).filter(Boolean);
+    if (err.length) toast('Some data could not load: ' + err[0]);
+    data.profiles = r[0].data || [];
+    data.gigs = r[1].data || [];
+    data.orders = r[2].data || [];
+    updateDots();
+  }
+
+  function updateDots() {
+    var disputes = data.orders.filter(function(o) { return o.status === 'disputed'; }).length;
+    var waiting = sellers().filter(function(p) { return !p.verified && gigCount(p.id) > 0; }).length;
+    setDot('dotOrders', disputes); setDot('dotSellers', waiting);
+  }
+  function setDot(id, n) { var d = document.getElementById(id); d.textContent = n > 9 ? '9+' : n; d.style.display = n ? 'flex' : 'none'; }
+
+  function showTab(t) {
+    tab = t; query = '';
+    document.querySelectorAll('.tab').forEach(function(b) { b.classList.toggle('on', b.dataset.tab === t); });
+    history.replaceState(null, '', 'admin.html' + (t === 'overview' ? '' : '?tab=' + t));
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    var html = tab === 'sellers' ? renderSellers() : tab === 'orders' ? renderOrders() : tab === 'gigs' ? renderGigs() : renderOverview();
+    document.getElementById('wrap').innerHTML = html;
+    var sb = document.getElementById('search');
+    if (sb) {
+      sb.value = query;
+      sb.oninput = function() { query = sb.value; var pos = sb.selectionStart; render(); var n = document.getElementById('search'); n.focus(); n.setSelectionRange(pos, pos); };
+    }
+  }
+
+  // ── OVERVIEW ──────────────────────────────────────────────────────────
+  function renderOverview() {
+    var S = sellers(), B = data.profiles.filter(function(p) { return p.role !== 'seller'; });
+    var verified = S.filter(function(p) { return p.verified; }).length;
+    var waiting = S.filter(function(p) { return !p.verified && gigCount(p.id) > 0; }).length;
+    var activeGigs = data.gigs.filter(isVisible).length;
+    var paid = data.orders.filter(function(o) { return ['active', 'in_progress', 'delivered', 'completed', 'disputed'].indexOf(o.status) !== -1; });
+    var inEscrow = paid.filter(function(o) { return o.status !== 'completed'; }).reduce(function(a, o) { return a + Number(o.total || 0); }, 0);
+    var released = paid.filter(function(o) { return o.status === 'completed'; }).reduce(function(a, o) { return a + sellerEarn(o); }, 0);
+    // NEXORA's income: buyer's 5% service fee + seller's 10% fee, on completed orders
+    var fees = paid.filter(function(o) { return o.status === 'completed'; }).reduce(function(a, o) { return a + Number(o.service_fee || 0) + (Number(o.price || 0) - sellerEarn(o)); }, 0);
+    var disputes = data.orders.filter(function(o) { return o.status === 'disputed'; }).length;
+    var late = data.orders.filter(isLate).length;
+
+    var html = '<div class="section-title">Overview</div>' +
+      '<div class="sub">Live numbers from your database.</div>';
+
+    if (disputes || waiting) {
+      html += '<div class="stats">' +
+        (disputes ? '<div class="stat alert"><div class="v">' + disputes + '</div><div class="l">Disputes to resolve</div><button onclick="orderFilter=\'disputed\';showTab(\'orders\')">Review →</button></div>' : '') +
+        (waiting ? '<div class="stat alert"><div class="v">' + waiting + '</div><div class="l">Sellers awaiting review</div><button onclick="sellerFilter=\'pending\';showTab(\'sellers\')">Review →</button></div>' : '') +
+      '</div>';
+    } else {
+      html += '<div class="box" style="margin:0;background:var(--green-bg);border-color:var(--green-border);color:#047857;">✅ Nothing needs your attention right now.</div>';
+    }
+
+    html += '<div class="section-title" style="margin-top:6px">People</div><div class="stats">' +
+      stat(S.length, 'Sellers') + stat(verified, 'Verified sellers') + stat(B.length, 'Buyers') + stat(activeGigs, 'Gigs buyers can see') + '</div>';
+
+    html += '<div class="section-title" style="margin-top:6px">Orders</div><div class="stats">' +
+      stat(paid.length, 'Paid orders') + stat(late, 'Past due date') +
+      stat('$' + money(inEscrow), 'Held in escrow') + stat('$' + money(released), 'Released to sellers') +
+      stat('$' + money(fees), 'NEXORA fees earned') +
+      stat(data.orders.filter(function(o) { return o.status === 'cancelled'; }).length, 'Cancelled / refunded') +
+    '</div>';
+
+    return html;
+  }
+  function stat(v, l) { return '<div class="stat"><div class="v">' + escHtml(String(v)) + '</div><div class="l">' + escHtml(l) + '</div></div>'; }
+
+  // ── SELLERS ───────────────────────────────────────────────────────────
+  // Buyers only see a gig if it's active AND its seller has been approved
+  function isVisible(g) {
+    if (g.status !== 'active') return false;
+    var p = data.profiles.find(function(x) { return x.id === g.seller_id; });
+    return !!(p && p.verified);
+  }
+
+  function sellers() { return data.profiles.filter(function(p) { return p.role === 'seller'; }); }
+  function gigCount(id) { return data.gigs.filter(function(g) { return g.seller_id === id && g.status === 'active'; }).length; }
+
+  function renderSellers() {
+    var list = sellers().filter(function(p) {
+      if (sellerFilter === 'pending') return !p.verified;
+      if (sellerFilter === 'verified') return p.verified;
+      return true;
+    }).filter(function(p) { return match([p.full_name, p.headline], query); });
+    // Sellers with gigs first: they're the ones buyers can already see
+    if (sellerFilter === 'pending') list.sort(function(a, b) { return gigCount(b.id) - gigCount(a.id); });
+
+    var html = '<div class="section-title">Sellers</div>' +
+      '<div class="sub">Check the photo, headline, bio and gigs before approving. Buyers only see gigs from approved sellers, and approved sellers get the ✓ Verified badge.</div>' +
+      chips([['pending', 'Awaiting review'], ['verified', 'Verified'], ['all', 'All']], sellerFilter, 'sellerFilter') +
+      '<input class="search" id="search" placeholder="Search by name or headline">';
+
+    if (!list.length) return html + '<div class="empty">No sellers here.</div>';
+
+    return html + list.map(function(p) {
+      var n = gigCount(p.id);
+      var name = p.full_name || 'Unnamed seller';
+      var ready = !!(p.avatar_url && p.headline && p.bio && n);
+      return '<div class="item">' +
+        '<div class="item-top">' + avatar(p.avatar_url, name, p.id) +
+          '<div class="meta"><div class="t">' + escHtml(name) + '</div>' +
+          '<div class="s">' + escHtml(p.headline || 'No headline yet') + '</div>' +
+          '<div class="s">Joined ' + escHtml(shortDate(p.created_at)) + ' · ' + n + ' active gig' + (n === 1 ? '' : 's') + '</div></div>' +
+          '<span class="pill ' + (p.verified ? 'p-ok' : 'p-wait') + '">' + (p.verified ? '✓ Verified' : 'Not verified') + '</span>' +
+        '</div>' +
+        '<div class="checks">' + chk(p.avatar_url, 'Photo') + chk(p.headline, 'Headline') + chk(p.bio, 'Bio') + chk(p.skills, 'Skills') + chk(n, 'Has a gig') + '</div>' +
+        (p.bio ? '<div class="box"><b>Bio</b>' + escHtml(p.bio) + '</div>' : '') +
+        '<div class="acts">' +
+          '<a class="btn btn-ghost" href="seller-profile.html?id=' + encodeURIComponent(p.id) + '" target="_blank" rel="noopener">View profile</a>' +
+          (p.verified
+            ? '<button class="btn btn-red" onclick="askVerify(\'' + p.id + '\', false)">Remove badge</button>'
+            : '<button class="btn btn-green" onclick="askVerify(\'' + p.id + '\', true)">' + (ready ? '✓ Approve' : 'Approve anyway') + '</button>') +
+        '</div></div>';
+    }).join('');
+  }
+  function chk(v, label) { return '<span class="check ' + (v ? 'yes' : 'no') + '">' + (v ? '✓ ' : '✗ ') + label + '</span>'; }
+
+  function askVerify(id, on) {
+    var p = data.profiles.find(function(x) { return x.id === id; }) || {};
+    openModal({
+      title: on ? 'Approve ' + (p.full_name || 'this seller') + '?' : 'Remove the Verified badge?',
+      text: on ? 'Their gigs become visible to buyers straight away, with the ✓ Verified badge.' : 'Their gigs will be hidden from buyers until you approve them again. Orders already placed are not affected.',
+      ok: on ? '✓ Approve seller' : 'Remove badge', okStyle: on ? 'green' : 'red', note: false,
+      run: async function() {
+        var { error } = await supa.from('profiles').update({ verified: on }).eq('id', id).select('id').single();
+        if (error) throw error;
+        p.verified = on;
+        toast(on ? '✓ Seller approved' : 'Badge removed');
+      }
+    });
+  }
+
+  // ── ORDERS ────────────────────────────────────────────────────────────
+  function isLate(o) {
+    if (['active', 'in_progress'].indexOf(o.status) === -1) return false;
+    var g = data.gigs.find(function(x) { return x.id === o.gig_id; });
+    if (!g) return false;
+    var days = Number(o.tier === 'premium' ? g.prem_days : o.tier === 'standard' ? g.std_days : g.basic_days) || 0;
+    var start = new Date(o.paid_at || o.created_at);
+    if (!days || isNaN(start)) return false;
+    return Date.now() > start.getTime() + days * 86400000;
+  }
+
+  function renderOrders() {
+    var list = data.orders.filter(function(o) {
+      if (orderFilter === 'disputed') return o.status === 'disputed';
+      if (orderFilter === 'active') return ['active', 'in_progress', 'delivered'].indexOf(o.status) !== -1;
+      if (orderFilter === 'done') return o.status === 'completed' || o.status === 'cancelled';
+      if (orderFilter === 'unpaid') return o.status === 'pending_payment' || o.status === 'payment_failed';
+      return true;
+    }).filter(function(o) { return match([o.gig_title, o.id, o.tx_ref, o.buyer_email], query); });
+
+    var html = '<div class="section-title">Orders</div>' +
+      '<div class="sub">Resolve disputes here. Payment is released or refunded according to your decision.</div>' +
+      chips([['disputed', 'Disputes'], ['active', 'Active'], ['done', 'Finished'], ['unpaid', 'Unpaid'], ['all', 'All']], orderFilter, 'orderFilter') +
+      '<input class="search" id="search" placeholder="Search by gig title or order number">';
+
+    if (!list.length) return html + '<div class="empty">' + (orderFilter === 'disputed' ? '✅ No open disputes.' : 'No orders here.') + '</div>';
+
+    return html + list.map(function(o) {
+      var st = STATUS[o.status] || [o.status, 'p-grey'];
+      var buyer = nameOf(o.buyer_id, 'Buyer'), seller = nameOf(o.seller_id, 'Seller');
+      var g = data.gigs.find(function(x) { return x.id === o.gig_id; });
+      var thumb = g && g.cover_image && /^https:\/\//.test(g.cover_image) ? '<img src="' + escHtml(g.cover_image) + '" alt="">' : '📦';
+      var acts = '';
+      if (o.status === 'disputed') {
+        acts = '<button class="btn btn-green" onclick="askResolve(\'' + o.id + '\', \'completed\')">Pay seller</button>' +
+               '<button class="btn btn-red" onclick="askResolve(\'' + o.id + '\', \'cancelled\')">Refund buyer</button>' +
+               '<button class="btn btn-ghost" onclick="askResolve(\'' + o.id + '\', \'in_progress\')">Back to seller</button>';
+      } else if (['active', 'in_progress', 'delivered'].indexOf(o.status) !== -1) {
+        acts = '<button class="btn btn-ghost" onclick="askResolve(\'' + o.id + '\', \'cancelled\')">Cancel &amp; refund</button>';
+      }
+      return '<div class="item' + (o.status === 'disputed' ? ' hot' : '') + '">' +
+        '<div class="item-top"><div class="thumb">' + thumb + '</div>' +
+          '<div class="meta"><div class="t">' + escHtml(o.gig_title || 'Gig order') + '</div>' +
+          '<div class="s">#' + escHtml(String(o.id).slice(0, 8).toUpperCase()) + ' · ' + escHtml(cap(o.tier)) + ' · ' + escHtml(shortDate(o.created_at)) + '</div>' +
+          '<div class="s">Buyer: ' + escHtml(buyer) + ' · Seller: ' + escHtml(seller) + '</div></div>' +
+          '<span class="pill ' + (isLate(o) ? 'p-red' : st[1]) + '">' + escHtml(isLate(o) ? 'Late' : st[0]) + '</span>' +
+        '</div>' +
+        (o.dispute_reason ? '<div class="box warn"><b>Buyer\'s report · ' + escHtml(shortDate(o.disputed_at)) + '</b>' + escHtml(o.dispute_reason) + '</div>' : '') +
+        (o.requirements ? '<div class="box"><b>Buyer\'s requirements</b>' + linkify(o.requirements) + '</div>' : '') +
+        (o.delivery_note ? '<div class="box"><b>Seller\'s delivery' + (o.delivered_at ? ' · ' + escHtml(shortDate(o.delivered_at)) : '') + '</b>' + linkify(o.delivery_note) + '</div>' : '') +
+        (o.admin_note ? '<div class="box"><b>Your note</b>' + escHtml(o.admin_note) + '</div>' : '') +
+        '<div class="acts"><span class="money">$' + money(o.total) + '</span>' + acts + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function askResolve(id, to) {
+    var o = data.orders.find(function(x) { return x.id === id; }) || {};
+    var cfg = {
+      completed: { title: 'Pay the seller?', text: 'The order is marked completed and the seller\'s $' + money(sellerEarn(o)) + ' (90% of the $' + money(o.price) + ' price) is released. Use this when the work was delivered as agreed.', ok: 'Pay seller', style: 'green' },
+      cancelled: { title: 'Refund the buyer?', text: 'The order is cancelled. Refund $' + money(o.total) + ' to the buyer from your payment dashboard; this page records the decision.', ok: 'Cancel & refund', style: 'red' },
+      in_progress: { title: 'Send back to the seller?', text: 'The order returns to "In progress" so the seller can fix the work. Explain what needs to change.', ok: 'Send back', style: 'dark' }
+    }[to];
+    openModal({
+      title: cfg.title, text: cfg.text, ok: cfg.ok, okStyle: cfg.style,
+      note: true, noteLabel: 'Note to buyer and seller (they will both see this)', noteRequired: true,
+      run: async function(note) {
+        var { data: row, error } = await supa.from('orders').update({ status: to, admin_note: note }).eq('id', id).select().single();
+        if (error) throw error;
+        Object.assign(o, row);
+        updateDots();
+        toast(to === 'completed' ? 'Seller paid' : to === 'cancelled' ? 'Order cancelled' : 'Sent back to seller');
+      }
+    });
+  }
+
+  // ── GIGS ──────────────────────────────────────────────────────────────
+  function renderGigs() {
+    var list = data.gigs.filter(function(g) {
+      if (gigFilter === 'active') return isVisible(g);
+      if (gigFilter === 'hidden') return g.status === 'active' && !isVisible(g);
+      if (gigFilter === 'paused') return g.status !== 'active';
+      return true;
+    }).filter(function(g) { return match([g.title, g.seller_name, CAT_LABELS[g.category]], query); });
+
+    var html = '<div class="section-title">Gigs</div>' +
+      '<div class="sub">Pause any gig that breaks the rules. Paused gigs disappear from browse; the seller still sees them.</div>' +
+      chips([['active', 'Live'], ['hidden', 'Awaiting approval'], ['paused', 'Paused'], ['all', 'All']], gigFilter, 'gigFilter') +
+      '<input class="search" id="search" placeholder="Search by title or seller">';
+
+    if (!list.length) return html + '<div class="empty">No gigs here.</div>';
+
+    return html + list.map(function(g) {
+      var live = g.status === 'active';
+      var hidden = live && !isVisible(g);
+      var thumb = g.cover_image && /^https:\/\//.test(g.cover_image) ? '<img src="' + escHtml(g.cover_image) + '" alt="">' : '💼';
+      return '<div class="item"><div class="item-top"><div class="thumb">' + thumb + '</div>' +
+        '<div class="meta"><div class="t">' + escHtml(g.title || 'Untitled gig') + '</div>' +
+        '<div class="s">' + escHtml(g.seller_name || nameOf(g.seller_id, 'Seller')) + ' · ' + escHtml(CAT_LABELS[g.category] || g.category || 'No category') + '</div>' +
+        '<div class="s">From $' + money(g.basic_price) + ' · Posted ' + escHtml(shortDate(g.created_at)) + '</div></div>' +
+        '<span class="pill ' + (hidden ? 'p-wait' : live ? 'p-ok' : 'p-grey') + '">' + (hidden ? 'Seller not approved' : live ? 'Live' : 'Paused') + '</span></div>' +
+        '<div class="acts">' +
+          (live ? '<a class="btn btn-ghost" href="gig.html?id=' + encodeURIComponent(g.id) + '" target="_blank" rel="noopener">View</a>' : '') +
+          (live ? '<button class="btn btn-red" onclick="askGig(\'' + g.id + '\', false)">Pause gig</button>'
+                : '<button class="btn btn-green" onclick="askGig(\'' + g.id + '\', true)">Make live again</button>') +
+        '</div></div>';
+    }).join('');
+  }
+
+  function askGig(id, live) {
+    var g = data.gigs.find(function(x) { return x.id === id; }) || {};
+    openModal({
+      title: live ? 'Make this gig live again?' : 'Pause this gig?',
+      text: live ? 'It will show on the browse page again.' : 'It will be hidden from buyers straight away. Message the seller to explain why.',
+      ok: live ? 'Make live' : 'Pause gig', okStyle: live ? 'green' : 'red', note: false,
+      run: async function() {
+        var { error } = await supa.from('gigs').update({ status: live ? 'active' : 'paused' }).eq('id', id).select('id').single();
+        if (error) throw error;
+        g.status = live ? 'active' : 'paused';
+        toast(live ? 'Gig is live' : 'Gig paused');
+      }
+    });
+  }
+
+  // ── MODAL ─────────────────────────────────────────────────────────────
+  function openModal(o) {
+    pending = o;
+    document.getElementById('mTitle').textContent = o.title;
+    document.getElementById('mText').textContent = o.text;
+    document.getElementById('mNoteWrap').style.display = o.note ? 'block' : 'none';
+    document.getElementById('mNoteLabel').textContent = o.noteLabel || 'Note';
+    document.getElementById('mNote').value = '';
+    document.getElementById('mErr').style.display = 'none';
+    var b = document.getElementById('mOk');
+    b.textContent = o.ok; b.disabled = false;
+    b.style.background = { green: 'var(--green)', red: 'var(--red)', dark: 'var(--charcoal)' }[o.okStyle] || 'var(--cyan)';
+    b.style.color = 'white';
+    document.getElementById('overlay').style.display = 'flex';
+  }
+  function closeModal() { document.getElementById('overlay').style.display = 'none'; pending = null; }
+  async function confirmModal() {
+    if (!pending) return;
+    var note = document.getElementById('mNote').value.trim();
+    var err = document.getElementById('mErr');
+    if (pending.note && pending.noteRequired && note.length < 5) { err.textContent = 'Please write a short note explaining the decision.'; err.style.display = 'block'; return; }
+    var b = document.getElementById('mOk'); var label = b.textContent;
+    b.disabled = true; b.textContent = 'Saving…';
+    try {
+      await pending.run(note);
+      closeModal();
+      updateDots();
+      render();
+    } catch (e) {
+      b.disabled = false; b.textContent = label;
+      err.textContent = 'Could not save: ' + (e.message || e);
+      err.style.display = 'block';
+    }
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────
+  function chips(opts, current, varName) {
+    return '<div class="chips">' + opts.map(function(o) {
+      return '<button class="chip' + (o[0] === current ? ' on' : '') + '" onclick="' + varName + '=\'' + o[0] + '\';render()">' + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function match(fields, q) {
+    q = String(q || '').trim().toLowerCase();
+    if (!q) return true;
+    return fields.some(function(f) { return f && String(f).toLowerCase().indexOf(q) !== -1; });
+  }
+  function nameOf(id, fallback) { var p = data.profiles.find(function(x) { return x.id === id; }); return (p && p.full_name) || fallback; }
+  function avatar(url, name, id) {
+    var h = 0; String(id).split('').forEach(function(c) { h = (h * 31 + c.charCodeAt(0)) >>> 0; });
+    var inner = url && /^https:\/\//.test(url) ? '<img src="' + escHtml(url) + '" alt="">'
+      : escHtml(String(name).split(/\s+/).map(function(w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase() || '?');
+    return '<div class="av" style="background:' + COLORS[h % COLORS.length] + '">' + inner + '</div>';
+  }
+  // Seller receives 90% of the gig price (NEXORA keeps a 10% seller fee)
+  function sellerEarn(o) {
+    if (o.seller_earnings !== null && o.seller_earnings !== undefined) return Number(o.seller_earnings);
+    return Math.round(Number(o.price || 0) * 90) / 100;
+  }
+
+  function money(n) { n = Number(n || 0); return n % 1 === 0 ? n.toLocaleString() : n.toFixed(2); }
+  function cap(s) { s = String(s || 'basic'); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function shortDate(d) { var x = new Date(d); return isNaN(x) ? '—' : x.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function state(ic, t, p, href, btn) {
+    document.getElementById('wrap').innerHTML = '<div class="state"><div class="ic">' + ic + '</div><h3>' + escHtml(t) + '</h3><p>' + escHtml(p) + '</p>' + (href ? '<a href="' + href + '">' + escHtml(btn) + '</a>' : '') + '</div>';
+  }
+  function toast(t) { var d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(function() { d.remove(); }, 2600); }
+  function escHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function linkify(s) {
+    return escHtml(s).replace(/https?:\/\/[^\s<]+/g, function(u) { return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; });
+  }
+</script>
+<script>
+(function(){
+  var WAKE_URL = "https://tzzhbzaxoodxbcezcynw.supabase.co/rest/v1/";
+  var WAKE_KEY = "sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX";
+  function ping(tries){
+    tries = tries || 0;
+    fetch(WAKE_URL, { headers: { apikey: WAKE_KEY, "Content-Type": "application/json" } })
+      .catch(function(){ if(tries < 4) setTimeout(function(){ ping(tries+1); }, 3000); });
+  }
+  ping();
+})();
+</script>
+</body>
+</html>
