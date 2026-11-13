@@ -258,7 +258,7 @@
   var SUPABASE_KEY = 'sb_publishable_0Ri0jxyq0AhmIXDInpVi1g_QqqAlOVX';
 
   // >>> PASTE YOUR FLUTTERWAVE PUBLIC KEY BETWEEN THE QUOTES (starts with FLWPUBK) <<<
-  var FLW_PUBLIC_KEY = 'FLUTTERWAVE_PUBLIC_KEY_HERE';
+  var FLW_PUBLIC_KEY = 'FLWPUBK_TEST-a543bd0a21fef2bfd555fe6b06b9724f-X';
 
   var supa, user;
   var orderData = null;    // from sessionStorage
@@ -558,13 +558,8 @@
           '<div class="pay-methods">' +
             '<div class="pay-method selected" id="pm-card" onclick="selectPay(\'card\')">' +
               '<div class="pay-icon">💳</div>' +
-              '<div class="pay-info"><div class="pay-name">Card / Bank Transfer</div><div class="pay-sub">Visa, Mastercard, bank transfer</div></div>' +
+              '<div class="pay-info"><div class="pay-name">Debit or Credit Card</div><div class="pay-sub">Visa, Mastercard and other major cards</div></div>' +
               '<div class="pay-check" id="pc-card">✓</div>' +
-            '</div>' +
-            '<div class="pay-method" id="pm-ussd" onclick="selectPay(\'ussd\')">' +
-              '<div class="pay-icon">📱</div>' +
-              '<div class="pay-info"><div class="pay-name">Mobile Money / USSD</div><div class="pay-sub">Pay instantly from your mobile wallet</div></div>' +
-              '<div class="pay-check" id="pc-ussd"></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -591,7 +586,7 @@
   // ── SELECT PAYMENT ────────────────────────────────────────────────────
   function selectPay(method) {
     selectedPayMethod = method;
-    ['card','ussd'].forEach(function(m) {
+    ['card'].forEach(function(m) {
       document.getElementById('pm-'+m).className = 'pay-method' + (m === method ? ' selected' : '');
       var chk = document.getElementById('pc-'+m);
       if (chk) chk.textContent = m === method ? '✓' : '';
@@ -678,6 +673,8 @@
       return;
     }
 
+    var paidHandled = false;
+
     // Load Flutterwave SDK
     var fw = document.createElement('script');
     fw.src = 'https://checkout.flutterwave.com/v3.js';
@@ -685,9 +682,9 @@
       FlutterwaveCheckout({
         public_key: FLW_PUBLIC_KEY,
         tx_ref: txRef,
-        amount: total,
+        amount: Number(orderRecord.total),
         currency: 'USD',
-        payment_options: selectedPayMethod === 'ussd' ? 'ussd,mobilemoneyghana,mobilemoneyuganda' : 'card,banktransfer',
+        payment_options: 'card',
         customer: {
           email: user.email,
           name: user.user_metadata && user.user_metadata.full_name ? user.user_metadata.full_name : user.email,
@@ -703,33 +700,65 @@
           description: gig.title,
         },
         callback: async function(response) {
+          // Our server confirms the payment directly with Flutterwave.
+          // The browser never marks an order as paid by itself.
+          paidHandled = true;
+          try { if (window.closePaymentModal) closePaymentModal(); } catch (e) {}
           if (response.status === 'successful' || response.status === 'completed') {
-            // Update order status
-            await supa.from('orders').update({
-              status: 'active',
-              flw_transaction_id: String(response.transaction_id),
-              paid_at: new Date().toISOString(),
-            }).eq('id', orderRecord.id);
-
-            // Clear session order data
-            sessionStorage.removeItem('nexora_order');
-
-            // Show success
-            showSuccess(orderRecord.id);
+            btn.innerHTML = '<span class="spin"></span> Confirming payment…';
+            var ok = await confirmPayment(orderRecord.id, response.transaction_id);
+            if (ok) {
+              sessionStorage.removeItem('nexora_order');
+              showSuccess(orderRecord.id);
+            } else {
+              showConfirming(orderRecord.id);
+            }
           } else {
             await supa.from('orders').update({ status: 'payment_failed' }).eq('id', orderRecord.id);
             btn.disabled = false;
-            btn.textContent = 'Pay ' + fmtPrice(total);
-            alert('Payment was not completed. Please try again.');
+            btn.textContent = 'Pay ' + fmtPrice(Number(orderRecord.total));
+            alert('Payment was not completed. You have not been charged. Please try again.');
           }
         },
         onclose: function() {
+          if (paidHandled) return;
           btn.disabled = false;
-          btn.textContent = 'Pay ' + fmtPrice(total);
+          btn.textContent = 'Pay ' + fmtPrice(Number(orderRecord.total));
         },
       });
     };
     document.head.appendChild(fw);
+  }
+
+  // ── SERVER-SIDE PAYMENT CONFIRMATION ──────────────────────────────────
+  // Asks our Supabase function to check the payment with Flutterwave.
+  // Returns true once the order is confirmed as paid.
+  async function confirmPayment(orderId, transactionId) {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        var res = await supa.functions.invoke('flw-payment', {
+          body: { order_id: orderId, transaction_id: transactionId }
+        });
+        if (res.data && res.data.paid) return true;
+      } catch (e) {}
+      // The webhook may confirm it a moment later
+      var { data: o } = await supa.from('orders').select('status').eq('id', orderId).maybeSingle();
+      if (o && o.status !== 'pending_payment' && o.status !== 'payment_failed') return true;
+      await new Promise(function(r) { setTimeout(r, 2500); });
+    }
+    return false;
+  }
+
+  function showConfirming(orderId) {
+    document.getElementById('bottomBar').style.display = 'none';
+    document.querySelector('.steps-bar').style.display = 'none';
+    document.getElementById('mainContent').innerHTML =
+      '<div class="success-screen">' +
+        '<div class="success-icon">⏳</div>' +
+        '<h2>Confirming your payment</h2>' +
+        '<p>We are waiting for final confirmation from the payment provider. This usually takes less than a minute. Your order will show as In Progress on your orders page as soon as it is confirmed.</p>' +
+        '<button class="btn-solid" onclick="window.location.href=\'orders.html\'">View My Orders</button>' +
+      '</div>';
   }
 
   // ── SUCCESS SCREEN ────────────────────────────────────────────────────
@@ -746,7 +775,7 @@
           '<div style="font-size:.8rem;font-weight:700;color:var(--green);margin-bottom:6px;">✅ What happens next</div>' +
           '<div style="font-size:.82rem;color:var(--slate);line-height:1.6;">' +
             '1. Seller reviews your requirements<br>' +
-            '2. Work starts within 24 hours<br>' +
+            '2. The seller starts working on your order<br>' +
             '3. Delivery in ' + escHtml(getDelivery()) + '<br>' +
             '4. You review and approve delivery<br>' +
             '5. Payment released to seller' +
